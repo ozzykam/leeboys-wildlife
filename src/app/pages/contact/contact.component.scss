@@ -1,0 +1,132 @@
+// Contact page specific styles
+.hero-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+// Form focus states
+.form-control:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+// Custom checkbox styling for brand colors
+input[type="checkbox"]:checked {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+input[type="checkbox"]:checked:hover,
+input[type="checkbox"]:checked:focus {
+  background-color: #991b1b;
+  border-color: #991b1b;
+}
+
+// Social media hover effects
+.social-link {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Form validation states
+.form-field {
+  transition: all 0.2s ease;
+  
+  &.invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  
+  &.valid {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+}
+
+// Button states
+.btn-submit {
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Success/Error message animations
+.alert {
+  animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading spinner
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 1rem;
+  }
+  
+  .form-container {
+    padding: 1.5rem;
+  }
+  
+  .social-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+// Dark mode support (for future implementation)
+@media (prefers-color-scheme: dark) {
+  .contact-section {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .form-field {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+}

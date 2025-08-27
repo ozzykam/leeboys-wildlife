@@ -1,0 +1,165 @@
+<!-- Side Navigation Overlay -->
+<div 
+  *ngIf="isOpen" 
+  class="fixed inset-0 z-50 lg:hidden"
+  (click)="onOverlayClick()">
+  
+  <!-- Background Overlay -->
+  <div class="fixed inset-0 bg-black opacity-50 transition-opacity duration-300"></div>
+  
+  <!-- Side Navigation Panel -->
+  <div 
+    class="fixed top-0 right-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50"
+    [class.translate-x-0]="isOpen"
+    [class.translate-x-full]="!isOpen"
+    (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <div class="flex items-center space-x-3">
+        <img src="/media/leeboys-logo.png" alt="LeeBoy's Wildlife Removal Logo" class="h-10 w-auto">
+        <span class="text-lg font-bold text-gray-900">LeeBoy's Wildlife</span>
+      </div>
+      
+      <!-- Close Button -->
+      <button 
+        (click)="onNavItemClick()" 
+        class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Items -->
+    <div class="flex flex-col py-4">
+      
+      <!-- Public Navigation (when not logged in) -->
+      <div *ngIf="!isLoggedIn" class="space-y-1">
+        <a 
+          routerLink="/" 
+          routerLinkActive="bg-brand-primary text-white" 
+          [routerLinkActiveOptions]="{exact: true}"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">home</mat-icon>
+          Home
+        </a>
+        
+        <a 
+          routerLink="/solutions" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">handyman</mat-icon>
+          Solutions
+        </a>
+        
+        <a 
+          routerLink="/about" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">info</mat-icon>
+          About
+        </a>
+        
+        <a 
+          routerLink="/contact" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">mail</mat-icon>
+          Contact
+        </a>
+        
+        <!-- Divider -->
+        <div class="border-t border-gray-200 my-4"></div>
+        
+        <!-- Auth Actions -->
+        <a 
+          routerLink="/login" 
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">login</mat-icon>
+          Sign In
+        </a>
+        
+        <a 
+          routerLink="/signup" 
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">person_add</mat-icon>
+          Create Account
+        </a>
+      </div>
+
+      <!-- Customer Navigation (when logged in) -->
+      <div *ngIf="isLoggedIn" class="space-y-1">
+        <!-- User Welcome -->
+        <div class="px-4 py-3 border-b border-gray-200 mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-medium">
+                {{ (currentUser?.displayName || 'User').charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-900">
+                {{ currentUser?.displayName || 'User' }}
+              </p>
+              <p class="text-xs text-gray-500">{{ currentUser?.email }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <a 
+          routerLink="/account" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">account_circle</mat-icon>
+          My Account
+        </a>
+        
+        <a 
+          routerLink="/schedule-service" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">calendar_today</mat-icon>
+          Schedule Service
+        </a>
+        
+        <a 
+          routerLink="/upcoming-services" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">schedule</mat-icon>
+          Upcoming Services
+        </a>
+        
+        <a 
+          routerLink="/billing" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">receipt</mat-icon>
+          Billing & Invoices
+        </a>
+        
+        <!-- Divider -->
+        <div class="border-t border-gray-200 my-4"></div>
+        
+        <!-- Logout Button -->
+        <button 
+          (click)="onLogout()"
+          class="flex items-center w-full px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-red-600 transition-colors">
+          <mat-icon class="mr-3">logout</mat-icon>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

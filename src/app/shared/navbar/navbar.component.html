@@ -1,0 +1,71 @@
+<!-- Navigation -->
+<nav class="navbar">
+  <!-- Logo -->
+  <div class="flex items-center space-x-3">
+    <img src="/media/leeboys-logo.png" alt="LeeBoy's Wildlife Removal Logo" class="h-16 w-auto">
+    <div class="font-bold text-lg">
+      <a routerLink="/" class="hover:text-gray-300">LeeBoy's Wildlife Removal</a>
+    </div>
+  </div>
+
+  <!-- Desktop Navigation (hidden on mobile) -->
+  
+  <!-- Public Navigation (when not logged in) -->
+  <div *ngIf="!isLoggedIn" class="hidden lg:flex space-x-6">
+    <a routerLink="/" routerLinkActive="text-brand-primary" [routerLinkActiveOptions]="{exact: true}" class="hover:text-gray-300">Home</a>
+    <a routerLink="/solutions" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Solutions</a>
+    <a routerLink="/about" routerLinkActive="text-brand-primary" class="hover:text-gray-300">About</a>
+    <a routerLink="/contact" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Contact</a>
+  </div>
+
+  <!-- Customer Navigation (when logged in) -->
+  <div *ngIf="isLoggedIn" class="hidden lg:flex space-x-6">
+    <a routerLink="/schedule-service" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Schedule A Service</a>
+    <a routerLink="/upcoming-services" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Upcoming Services</a>
+    <a routerLink="/billing" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Billing & Invoices</a>
+  </div>
+
+  <!-- Right side actions -->
+  <div class="flex items-center space-x-4">
+    <!-- Desktop Auth Actions (hidden on mobile) -->
+    <div class="hidden lg:flex items-center space-x-4">
+      <!-- Not logged in -->
+      <div *ngIf="!isLoggedIn" class="space-x-4">
+        <a routerLink="/login" class="hover:text-gray-300">Sign In</a>
+        <a routerLink="/signup" class="btn-primary">Create Account</a>
+      </div>
+
+      <!-- Logged in -->
+      <div *ngIf="isLoggedIn" class="flex items-center space-x-4">
+        <!-- User Welcome -->
+        <span class="text-sm text-gray-300">
+          Welcome, {{ currentUser?.displayName || 'User' }}
+        </span>
+        
+        <!-- Account Dropdown or Link -->
+        <a routerLink="/account" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Account</a>
+        
+        <!-- Logout Button -->
+        <button (click)="onLogout()" class="text-sm hover:text-gray-300">
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger Menu Button (visible on screens < lg) -->
+    <button 
+      (click)="toggleSideNav()"
+      class="lg:hidden p-2 rounded-md text-white hover:text-gray-300 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
+      aria-label="Toggle navigation menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Side Navigation Component -->
+<app-side-nav 
+  [isOpen]="isSideNavOpen" 
+  (closeNav)="closeSideNav()">
+</app-side-nav>

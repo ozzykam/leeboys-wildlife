@@ -1,0 +1,179 @@
+// Side navigation specific styles
+
+// Smooth transitions for slide-in/out animation
+.side-nav-panel {
+  transition: transform 0.3s ease-in-out;
+}
+
+// Overlay background animation
+.overlay-background {
+  transition: opacity 0.3s ease-in-out;
+}
+
+// Active navigation item styles
+.nav-item-active {
+  @apply bg-brand-primary text-white;
+  
+  &:hover {
+    @apply bg-brand-accent;
+  }
+  
+  svg {
+    @apply text-white;
+  }
+}
+
+// Navigation item hover effects
+.nav-item {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    @apply bg-gray-100 text-brand-primary;
+    transform: translateX(4px);
+  }
+}
+
+// User avatar styles
+.user-avatar {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+}
+
+// Close button hover effect
+.close-button {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: rotate(90deg);
+  }
+}
+
+// Sign up button special styling
+.signup-button {
+  background: linear-gradient(45deg, #dc2626, #991b1b);
+  transition: all 0.3s ease-in-out;
+  
+  &:hover {
+    background: linear-gradient(45deg, #991b1b, #7f1d1d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  }
+}
+
+// Logout button special styling
+.logout-button {
+  &:hover {
+    @apply text-red-600 bg-red-50;
+    
+    svg {
+      @apply text-red-600;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 320px) {
+  .side-nav-panel {
+    width: 100vw;
+  }
+}
+
+// Prevent body scroll when side nav is open
+body.side-nav-open {
+  overflow: hidden;
+}
+
+// Animation keyframes
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Custom scrollbar for navigation items
+.nav-items-container {
+  scrollbar-width: thin;
+  scrollbar-color: #dc2626 #f3f4f6;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #991b1b;
+  }
+}
+
+// Focus states for accessibility
+.nav-item:focus,
+.close-button:focus,
+.logout-button:focus {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+// Dark mode support (for future implementation)
+@media (prefers-color-scheme: dark) {
+  .side-nav-panel {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .nav-item {
+    @apply text-gray-200;
+    
+    &:hover {
+      @apply bg-gray-700 text-brand-primary;
+    }
+  }
+  
+  .user-info {
+    @apply text-gray-200 border-gray-700;
+  }
+}
