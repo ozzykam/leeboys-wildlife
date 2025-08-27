@@ -1,0 +1,22 @@
+.service-requests-container {
+  padding: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+
+  .header .title { 
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .header .subtitle { 
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

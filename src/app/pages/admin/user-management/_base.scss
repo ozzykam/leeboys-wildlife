@@ -1,0 +1,51 @@
+.user-management-container {
+  padding: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+
+  .header .title { 
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .header .subtitle { 
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .first-admin-notice { 
+    margin-top: 2rem;
+  }
+  
+  .notice-card { 
+    background: #fefce8;
+    border: 1px solid #fde047;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .notice-icon { 
+    color: #f59e0b;
+    margin-bottom: 1rem;
+    font-size: 3rem;
+  }
+  
+  .notice-card h3 { 
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+  }
+  
+  .notice-card p { 
+    color: #a16207;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

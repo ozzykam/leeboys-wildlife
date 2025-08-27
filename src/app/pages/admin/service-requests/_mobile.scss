@@ -1,0 +1,102 @@
+.mobile-card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  
+  .card-header { 
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  
+  .customer-name { 
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #111827;
+  }
+  
+  .contact-info { 
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  
+  .card-content { 
+    margin-bottom: 1rem;
+    
+    > * + * {
+      margin-top: 0.5rem;
+    }
+  }
+  
+  .info-row { 
+    font-size: 0.875rem;
+    color: #6b7280;
+    
+    strong { color: #111827; }
+  }
+  
+  .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    
+    .mobile-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      border: none;
+      cursor: pointer;
+      
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+      }
+      
+      mat-icon { font-size: 16px; }
+      
+      &.schedule { 
+        background: #eff6ff;
+        color: #1d4ed8;
+        
+        &:hover { background: #dbeafe; }
+        &:focus { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+      }
+      
+      &.progress { 
+        background: #fff7ed;
+        color: #c2410c;
+        
+        &:hover { background: #fed7aa; }
+        &:focus { box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2); }
+      }
+      
+      &.complete { 
+        background: #f0fdf4;
+        color: #15803d;
+        
+        &:hover { background: #dcfce7; }
+        &:focus { box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+      }
+      
+      &.info { 
+        background: #f9fafb;
+        color: #374151;
+        
+        &:hover { background: #f3f4f6; }
+        &:focus { box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2); }
+      }
+    }
+  }
+}

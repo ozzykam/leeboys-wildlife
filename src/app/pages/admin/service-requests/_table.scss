@@ -1,0 +1,118 @@
+.requests-table {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  
+  .results-count { 
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .desktop-table {
+    width: 100%;
+    
+    th { 
+      padding: 0.75rem 1.5rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .table-row {
+      transition: background-color 0.15s ease;
+      
+      &:hover {
+        background: #f9fafb;
+      }
+      
+      td { 
+        padding: 1rem 1.5rem;
+        white-space: nowrap;
+      }
+      
+      .customer-name { 
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #111827;
+      }
+      
+      .customer-address, .contact-email, .date-cell { 
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+      }
+      
+      .contact-phone, .problem-type { 
+        font-size: 0.875rem;
+        color: #111827;
+      }
+      
+      .emergency-icon { 
+        color: #f59e0b;
+        font-size: 20px;
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        
+        .action-btn {
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.15s ease;
+          border: none;
+          cursor: pointer;
+          
+          &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+          }
+          
+          mat-icon { font-size: 18px; }
+          
+          &.schedule-btn { 
+            color: #2563eb;
+            background: transparent;
+            
+            &:hover { background: #eff6ff; }
+            &:focus { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+          }
+          
+          &.progress-btn { 
+            color: #ea580c;
+            background: transparent;
+            
+            &:hover { background: #fff7ed; }
+            &:focus { box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.2); }
+          }
+          
+          &.complete-btn { 
+            color: #16a34a;
+            background: transparent;
+            
+            &:hover { background: #f0fdf4; }
+            &:focus { box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+          }
+          
+          &.info-btn { 
+            color: #6b7280;
+            background: transparent;
+            
+            &:hover { background: #f9fafb; }
+            &:focus { box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2); }
+          }
+        }
+      }
+    }
+  }
+}

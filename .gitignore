@@ -34,3 +34,8 @@ structure.md
 .firebase
 *-debug.log
 .runtimeconfig.json
+setup-admin.js
+
+# Firebase Service Account Keys (sensitive)
+*firebase-adminsdk*.json
+*service-account*.json

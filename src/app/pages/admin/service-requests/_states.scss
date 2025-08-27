@@ -1,0 +1,34 @@
+.loading-state {
+  text-align: center;
+  padding: 3rem 0;
+  color: #6b7280;
+  
+  .spinning { 
+    color: #dc2626;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 0;
+  
+  .empty-icon { 
+    color: #9ca3af;
+    margin-bottom: 1rem;
+    font-size: 4rem;
+  }
+  
+  .empty-title { 
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+  
+  .empty-subtitle { 
+    color: #6b7280;
+  }
+}
