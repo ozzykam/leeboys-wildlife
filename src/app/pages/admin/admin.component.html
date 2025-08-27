@@ -1,1 +1,32 @@
-<p>admin works!</p>
+<div class="admin-dashboard">
+  <!-- Navigation Tabs -->
+  <div class="admin-nav">
+    <div class="nav-container">
+      <h1 class="dashboard-title">Admin Dashboard</h1>
+      <div class="nav-tabs">
+        <button 
+          (click)="setTab('requests')" 
+          [class.active]="currentTab === 'requests'"
+          class="nav-tab"
+        >
+          <mat-icon>assignment</mat-icon>
+          Service Requests
+        </button>
+        <button 
+          (click)="setTab('users')" 
+          [class.active]="currentTab === 'users'"
+          class="nav-tab"
+        >
+          <mat-icon>people</mat-icon>
+          User Management
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <app-service-requests *ngIf="currentTab === 'requests'"></app-service-requests>
+    <app-user-management *ngIf="currentTab === 'users'"></app-user-management>
+  </div>
+</div>

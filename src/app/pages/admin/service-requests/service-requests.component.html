@@ -1,0 +1,332 @@
+<div class="service-requests-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">Service Requests</h1>
+    <div class="subtitle">Manage and track customer service requests</div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-section">
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()"
+        placeholder="Search by customer name, email, phone, or address..."
+        class="search-input"
+      >
+    </div>
+
+    <div class="status-filter">
+      <select 
+        [(ngModel)]="statusFilter" 
+        (change)="onStatusFilterChange()"
+        class="status-select"
+      >
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ getStatusCount('new') }}</div>
+      <div class="stat-label">New Requests</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ getStatusCount('scheduled') }}</div>
+      <div class="stat-label">Scheduled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ getStatusCount('in_progress') }}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ serviceRequests.length }}</div>
+      <div class="stat-label">Total Requests</div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning">refresh</mat-icon>
+    </div>
+    <div>Loading service requests...</div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredRequests.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">inbox</mat-icon>
+    <div class="empty-title">No service requests found</div>
+    <div class="empty-subtitle">
+      <span *ngIf="searchTerm || statusFilter !== 'all'">
+        Try adjusting your search or filters.
+      </span>
+      <span *ngIf="!searchTerm && statusFilter === 'all'">
+        Service requests will appear here when customers submit them.
+      </span>
+    </div>
+  </div>
+
+  <!-- Service Requests Table -->
+  <div *ngIf="!isLoading && filteredRequests.length > 0" class="requests-table">
+    <div class="table-header">
+      <div class="results-count">
+        Showing {{ filteredRequests.length }} of {{ serviceRequests.length }} requests
+      </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block">
+      <table class="desktop-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Contact</th>
+            <th>Problem Type</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Emergency</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of filteredRequests" class="table-row">
+            <td class="customer-cell">
+              <div class="customer-name">{{ request.customerName }}</div>
+              <div class="customer-address">{{ formatAddress(request.address) }}</div>
+            </td>
+            <td class="contact-cell">
+              <div class="contact-phone">{{ request.phone }}</div>
+              <div class="contact-email">{{ request.email }}</div>
+            </td>
+            <td class="problem-type">
+              {{ getProblemTypeDisplay(request.problemType) }}
+            </td>
+            <td class="status-cell">
+              <span [class]="getStatusBadgeClass(request.status)">
+                {{ request.status | titlecase }}
+              </span>
+            </td>
+            <td class="date-cell">
+              {{ formatDate(request.createdAt) }}
+            </td>
+            <td class="emergency-cell">
+              <mat-icon *ngIf="request.emergency" class="emergency-icon">warning</mat-icon>
+              <span *ngIf="!request.emergency" class="text-gray-400">-</span>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button 
+                  *ngIf="request.status === 'new'"
+                  (click)="updateStatus(request.id!, 'scheduled')"
+                  class="action-btn schedule-btn"
+                  title="Schedule Request"
+                >
+                  <mat-icon>event</mat-icon>
+                </button>
+                <button 
+                  *ngIf="request.status === 'scheduled'"
+                  (click)="updateStatus(request.id!, 'in_progress')"
+                  class="action-btn progress-btn"
+                  title="Mark In Progress"
+                >
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+                <button 
+                  *ngIf="request.status === 'in_progress'"
+                  (click)="updateStatus(request.id!, 'completed')"
+                  class="action-btn complete-btn"
+                  title="Mark Completed"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button 
+                  (click)="viewRequestDetails(request)"
+                  class="action-btn info-btn"
+                  title="View Details"
+                >
+                  <mat-icon>info</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="lg:hidden space-y-4">
+      <div *ngFor="let request of filteredRequests" class="mobile-card">
+        <div class="card-header">
+          <div class="customer-info">
+            <div class="customer-name">{{ request.customerName }}</div>
+            <div class="contact-info">
+              {{ request.phone }} • {{ request.email }}
+            </div>
+          </div>
+          <div class="status-badge-container">
+            <span [class]="getStatusBadgeClass(request.status)">
+              {{ request.status | titlecase }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="info-row">
+            <strong>Problem:</strong> {{ getProblemTypeDisplay(request.problemType) }}
+          </div>
+          <div class="info-row">
+            <strong>Address:</strong> {{ formatAddress(request.address) }}
+          </div>
+          <div class="info-row">
+            <strong>Created:</strong> {{ formatDate(request.createdAt) }}
+            <mat-icon *ngIf="request.emergency" class="emergency-icon ml-2">warning</mat-icon>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button 
+            *ngIf="request.status === 'new'"
+            (click)="updateStatus(request.id!, 'scheduled')"
+            class="mobile-action-btn schedule"
+          >
+            <mat-icon>event</mat-icon>
+            Schedule
+          </button>
+          <button 
+            *ngIf="request.status === 'scheduled'"
+            (click)="updateStatus(request.id!, 'in_progress')"
+            class="mobile-action-btn progress"
+          >
+            <mat-icon>play_arrow</mat-icon>
+            Start Work
+          </button>
+          <button 
+            *ngIf="request.status === 'in_progress'"
+            (click)="updateStatus(request.id!, 'completed')"
+            class="mobile-action-btn complete"
+          >
+            <mat-icon>check</mat-icon>
+            Complete
+          </button>
+          <button 
+            (click)="viewRequestDetails(request)" 
+            class="mobile-action-btn info"
+          >
+            <mat-icon>info</mat-icon>
+            Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Request Detail Modal -->
+  <div *ngIf="showDetailModal && selectedRequest" class="modal-overlay" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Service Request Details</h2>
+        <button (click)="closeDetailModal()" class="modal-close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Customer Information -->
+        <div class="detail-section">
+          <h3 class="section-title">Customer Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Name:</span>
+              <span class="detail-value">{{ selectedRequest.customerName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Phone:</span>
+              <span class="detail-value">{{ selectedRequest.phone }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">{{ selectedRequest.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Address:</span>
+              <span class="detail-value">{{ formatAddress(selectedRequest.address) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Information -->
+        <div class="detail-section">
+          <h3 class="section-title">Service Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Problem Type:</span>
+              <span class="detail-value">{{ getProblemTypeDisplay(selectedRequest.problemType) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status:</span>
+              <span [class]="getStatusBadgeClass(selectedRequest.status)">
+                {{ selectedRequest.status | titlecase }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Emergency:</span>
+              <span class="detail-value">
+                <mat-icon *ngIf="selectedRequest.emergency" class="text-yellow-500">warning</mat-icon>
+                <span [class]="selectedRequest.emergency ? 'text-yellow-600 font-medium' : 'text-gray-500'">
+                  {{ selectedRequest.emergency ? 'Yes' : 'No' }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Created:</span>
+              <span class="detail-value">{{ formatDate(selectedRequest.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="detail-section">
+          <h3 class="section-title">Description</h3>
+          <div class="description-content">
+            {{ selectedRequest.description }}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="detail-actions">
+          <button 
+            *ngIf="selectedRequest.status === 'new'"
+            (click)="updateStatus(selectedRequest.id!, 'scheduled'); closeDetailModal()"
+            class="detail-action-btn schedule"
+          >
+            <mat-icon>event</mat-icon>
+            Schedule Request
+          </button>
+          <button 
+            *ngIf="selectedRequest.status === 'scheduled'"
+            (click)="updateStatus(selectedRequest.id!, 'in_progress'); closeDetailModal()"
+            class="detail-action-btn progress"
+          >
+            <mat-icon>play_arrow</mat-icon>
+            Mark In Progress
+          </button>
+          <button 
+            *ngIf="selectedRequest.status === 'in_progress'"
+            (click)="updateStatus(selectedRequest.id!, 'completed'); closeDetailModal()"
+            class="detail-action-btn complete"
+          >
+            <mat-icon>check</mat-icon>
+            Mark Completed
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

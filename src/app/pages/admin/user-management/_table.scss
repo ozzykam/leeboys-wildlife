@@ -1,0 +1,97 @@
+.users-table { 
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.results-count { 
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.desktop-table { 
+  width: 100%;
+}
+
+.desktop-table th { 
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-row { 
+  transition: background-color 0.15s ease;
+  
+  &:hover {
+    background: #f9fafb;
+  }
+}
+
+.table-row td { 
+  padding: 1rem 1.5rem;
+}
+
+.user-name { 
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.user-id { 
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-family: monospace;
+}
+
+.email-cell, .date-cell { 
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  mat-icon { font-size: 16px; }
+  
+  &.promote-btn { 
+    background: #f0fdf4;
+    color: #15803d;
+    
+    &:hover { background: #dcfce7; }
+    &:focus { box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+  }
+  
+  &.demote-btn { 
+    background: #fef2f2;
+    color: #dc2626;
+    
+    &:hover { background: #fee2e2; }
+    &:focus { box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2); }
+  }
+}

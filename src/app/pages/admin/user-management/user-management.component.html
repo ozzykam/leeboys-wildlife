@@ -1,0 +1,177 @@
+<div class="user-management-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">User Management</h1>
+    <div class="subtitle">Manage user accounts and admin privileges</div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-section">
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        placeholder="Search by name or email..."
+        class="search-input"
+      >
+    </div>
+
+    <div class="role-filter">
+      <select 
+        [(ngModel)]="roleFilter" 
+        (change)="onRoleFilterChange()"
+        class="role-select"
+      >
+        <option *ngFor="let option of roleOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ getUserCount('admin') }}</div>
+      <div class="stat-label">Administrators</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ getUserCount('user') }}</div>
+      <div class="stat-label">Regular Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ users.length }}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning">refresh</mat-icon>
+    </div>
+    <div>Loading users...</div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">people</mat-icon>
+    <div class="empty-title">No users found</div>
+    <div class="empty-subtitle">
+      <span *ngIf="searchTerm || roleFilter !== 'all'">
+        Try adjusting your search or filters.
+      </span>
+      <span *ngIf="!searchTerm && roleFilter === 'all'">
+        Users will appear here when they sign up.
+      </span>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div *ngIf="!isLoading && filteredUsers.length > 0" class="users-table">
+    <div class="table-header">
+      <div class="results-count">
+        Showing {{ filteredUsers.length }} of {{ users.length }} users
+      </div>
+    </div>
+
+    <!-- Desktop Table View -->
+    <div class="hidden lg:block">
+      <table class="desktop-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers" class="table-row">
+            <td class="user-cell">
+              <div class="user-name">{{ user.displayName }}</div>
+              <div class="user-id">{{ user.uid }}</div>
+            </td>
+            <td class="email-cell">
+              {{ user.email }}
+            </td>
+            <td class="role-cell">
+              <span [class]="getRoleBadgeClass(user.role)">
+                {{ user.role | titlecase }}
+              </span>
+            </td>
+            <td class="date-cell">
+              {{ formatDate(user.createdAt) }}
+            </td>
+            <td class="date-cell">
+              {{ formatDate(user.updatedAt) }}
+            </td>
+            <td class="actions-cell">
+              <button 
+                (click)="toggleAdminRole(user)"
+                [class]="user.role === 'admin' ? 'demote-btn' : 'promote-btn'"
+                class="action-btn"
+                [title]="user.role === 'admin' ? 'Remove Admin' : 'Make Admin'"
+              >
+                <mat-icon>{{ user.role === 'admin' ? 'person_remove' : 'admin_panel_settings' }}</mat-icon>
+                {{ user.role === 'admin' ? 'Remove Admin' : 'Make Admin' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="lg:hidden space-y-4">
+      <div *ngFor="let user of filteredUsers" class="mobile-card">
+        <div class="card-header">
+          <div class="user-info">
+            <div class="user-name">{{ user.displayName }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </div>
+          <div class="role-badge-container">
+            <span [class]="getRoleBadgeClass(user.role)">
+              {{ user.role | titlecase }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <div class="info-row">
+            <strong>User ID:</strong> {{ user.uid }}
+          </div>
+          <div class="info-row">
+            <strong>Created:</strong> {{ formatDate(user.createdAt) }}
+          </div>
+          <div class="info-row">
+            <strong>Updated:</strong> {{ formatDate(user.updatedAt) }}
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button 
+            (click)="toggleAdminRole(user)"
+            [class]="user.role === 'admin' ? 'demote' : 'promote'"
+            class="mobile-action-btn"
+          >
+            <mat-icon>{{ user.role === 'admin' ? 'person_remove' : 'admin_panel_settings' }}</mat-icon>
+            {{ user.role === 'admin' ? 'Remove Admin' : 'Make Admin' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- First Admin Setup -->
+  <div *ngIf="!isLoading && getUserCount('admin') === 0" class="first-admin-notice">
+    <div class="notice-card">
+      <mat-icon class="notice-icon">warning</mat-icon>
+      <h3>No Admin Users Found</h3>
+      <p>There are currently no admin users in the system. You may need to manually set up the first admin user using Firebase Console or contact your developer.</p>
+    </div>
+  </div>
+</div>
