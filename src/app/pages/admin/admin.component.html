@@ -20,6 +20,14 @@
           <mat-icon>people</mat-icon>
           User Management
         </button>
+        <button 
+          (click)="setTab('invoices')" 
+          [class.active]="currentTab === 'invoices'"
+          class="nav-tab"
+        >
+          <mat-icon>receipt</mat-icon>
+          Invoices
+        </button>
       </div>
     </div>
   </div>
