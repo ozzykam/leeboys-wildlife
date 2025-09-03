@@ -1,0 +1,68 @@
+<div class="quote-cards-container">
+  <div *ngFor="let quote of quotes" class="mobile-card">
+    <div class="card-header">
+      <div class="quote-info">
+        <div class="quote-number">{{ quote.quoteNumber }}</div>
+        <div class="customer-name">{{ quote.customerName }}</div>
+      </div>
+      <div class="status-badge-container">
+        <span [class]="getStatusBadgeClass(quote.status)">
+          {{ quote.status | titlecase }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="card-content">
+      <div class="info-row">
+        <strong>Amount:</strong> {{ formatCurrency(quote.total) }}
+      </div>
+      <div class="info-row">
+        <strong>Issue Date:</strong> {{ formatDate(quote.issueDate) }}
+      </div>
+      <div class="info-row">
+        <strong>Valid Until:</strong> {{ formatDate(quote.validUntil) }}
+      </div>
+      <div class="info-row">
+        <strong>Customer:</strong> {{ quote.customerEmail }}
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button 
+        (click)="viewQuote(quote.id!)" 
+        class="mobile-action-btn view"
+      >
+        <mat-icon>visibility</mat-icon>
+        View Quote
+      </button>
+      
+      <!-- Admin-only status actions -->
+      <div *ngIf="isAdmin" class="admin-mobile-actions">
+        <button 
+          *ngIf="quote.status === 'draft'"
+          (click)="updateQuoteStatus(quote.id!, 'sent')"
+          class="mobile-action-btn send"
+        >
+          <mat-icon>send</mat-icon>
+          Mark Sent
+        </button>
+        <button 
+          *ngIf="quote.status === 'sent'"
+          (click)="updateQuoteStatus(quote.id!, 'approved')"
+          class="mobile-action-btn approved"
+        >
+          <mat-icon>check_circle</mat-icon>
+          Mark Approved
+        </button>
+        <button 
+          *ngIf="quote.status === 'sent' || quote.status === 'approved'"
+          (click)="convertQuoteToInvoice(quote.id!, quote.quoteNumber)"
+          class="mobile-action-btn convert"
+        >
+          <mat-icon>transform</mat-icon>
+          Convert
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

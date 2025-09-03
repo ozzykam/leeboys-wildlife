@@ -1,78 +1,155 @@
 <div class="min-h-[80vh] flex items-center justify-center px-4">
-  <div class="card w-full max-w-md">
+  <div *ngIf="isAdmin$ | async; else unauthorizedAccess" class="card w-full max-w-2xl">
     <div class="text-center mb-8">
-      <h1 class="h1 mb-2">Create Account</h1>
-      <p class="text-gray-600">Join LeeBoy's Wildlife Removal</p>
+      <h1 class="h1 mb-2">Create Customer Account</h1>
+      <p class="text-gray-600">Admin - Create new customer account for billing</p>
     </div>
 
-    <form (ngSubmit)="onSignup()" #signupForm="ngForm" class="space-y-6">
-      <!-- Full Name Field -->
-      <div>
-        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">
-          Full Name
-        </label>
-        <input
-          type="text"
-          id="fullName"
-          name="fullName"
-          [(ngModel)]="fullName"
-          required
-          minlength="2"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-          placeholder="Enter your full name"
-        >
+    <form (ngSubmit)="onCreateUserAccount()" #userForm="ngForm" class="space-y-6">
+      <!-- Personal Information Section -->
+      <div class="border-b border-gray-200 pb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- First Name -->
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
+              First Name *
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              [(ngModel)]="firstName"
+              required
+              minlength="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="Enter first name"
+            >
+          </div>
+
+          <!-- Last Name -->
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
+              Last Name *
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              [(ngModel)]="lastName"
+              required
+              minlength="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="Enter last name"
+            >
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+              Email Address *
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="email"
+              required
+              email
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="Enter email address"
+            >
+          </div>
+
+          <!-- Date of Birth -->
+          <div>
+            <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth *
+            </label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              [(ngModel)]="dateOfBirth"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            >
+          </div>
+
+          <!-- Phone Number -->
+          <div class="md:col-span-2">
+            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="(555) 123-4567"
+            >
+          </div>
+        </div>
       </div>
 
-      <!-- Email Field -->
+      <!-- Address Information Section -->
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-          Email Address
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="email"
-          required
-          email
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-          placeholder="Enter your email"
-        >
-      </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Address Information</h3>
+        
+        <div class="grid grid-cols-1 gap-4">
+          <!-- Street Address -->
+          <div>
+            <label for="streetAddress" class="block text-sm font-medium text-gray-700 mb-1">
+              Street Address *
+            </label>
+            <input
+              type="text"
+              id="streetAddress"
+              name="streetAddress"
+              [(ngModel)]="streetAddress"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="123 Main Street"
+            >
+          </div>
 
-      <!-- Password Field -->
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          required
-          minlength="6"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-          placeholder="Create a password (min 6 characters)"
-        >
-      </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- City -->
+            <div>
+              <label for="city" class="block text-sm font-medium text-gray-700 mb-1">
+                City *
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                [(ngModel)]="city"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                placeholder="City name"
+              >
+            </div>
 
-      <!-- Confirm Password Field -->
-      <div>
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">
-          Confirm Password
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          name="confirmPassword"
-          [(ngModel)]="confirmPassword"
-          required
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-          placeholder="Confirm your password"
-        >
-        <div *ngIf="password && confirmPassword && password !== confirmPassword" class="mt-1">
-          <p class="text-red-600 text-sm">Passwords do not match</p>
+            <!-- Zip Code -->
+            <div>
+              <label for="zipCode" class="block text-sm font-medium text-gray-700 mb-1">
+                Zip Code *
+              </label>
+              <input
+                type="text"
+                id="zipCode"
+                name="zipCode"
+                [(ngModel)]="zipCode"
+                required
+                pattern="[0-9]{5}(-[0-9]{4})?"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                placeholder="12345"
+              >
+            </div>
+          </div>
         </div>
       </div>
 
@@ -88,27 +165,45 @@
 
       <!-- Loading State -->
       <div *ngIf="loading" class="text-center">
-        <p class="text-gray-600">Creating your account...</p>
+        <p class="text-gray-600">Creating customer account...</p>
       </div>
 
       <!-- Submit Button -->
-      <button
-        type="submit"
-        [disabled]="!signupForm.form.valid || loading || (password !== confirmPassword)"
-        class="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {{ loading ? 'Creating Account...' : 'Create Account' }}
-      </button>
+      <div class="flex gap-4">
+        <button
+          type="button"
+          (click)="clearForm()"
+          class="flex-1 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Clear Form
+        </button>
+        <button
+          type="submit"
+          [disabled]="!userForm.form.valid || loading"
+          class="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ loading ? 'Creating Account...' : 'Create Customer Account' }}
+        </button>
+      </div>
     </form>
 
-    <!-- Sign In Link -->
-    <div class="text-center mt-6 pt-6 border-t border-gray-200">
-      <p class="text-gray-600">
-        Already have an account? 
-        <a routerLink="/login" class="text-brand-primary hover:text-brand-accent font-medium">
-          Sign in here
-        </a>
-      </p>
+    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <h4 class="font-semibold text-blue-900 mb-2">What happens next?</h4>
+      <ul class="text-sm text-blue-800 space-y-1">
+        <li>• Customer account will be created with a billing account number</li>
+        <li>• Activation email will be sent to the customer</li>
+        <li>• Customer will use their billing account number and date of birth to activate</li>
+        <li>• Customer will set their own password during activation</li>
+      </ul>
     </div>
   </div>
+
+  <!-- Unauthorized Access Template -->
+  <ng-template #unauthorizedAccess>
+    <div class="card w-full max-w-md text-center">
+      <h1 class="h1 mb-4">Access Denied</h1>
+      <p class="text-gray-600 mb-6">This page is only accessible to administrators.</p>
+      <a routerLink="/" class="btn-primary inline-block">Return Home</a>
+    </div>
+  </ng-template>
 </div>

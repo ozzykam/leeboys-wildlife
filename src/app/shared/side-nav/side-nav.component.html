@@ -84,14 +84,6 @@
           <mat-icon class="mr-3">login</mat-icon>
           Sign In
         </a>
-        
-        <a 
-          routerLink="/signup" 
-          (click)="onNavItemClick()"
-          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
-          <mat-icon class="mr-3">person_add</mat-icon>
-          Create Account
-        </a>
       </div>
 
       <!-- Customer Navigation (when logged in) -->
@@ -113,7 +105,19 @@
           </div>
         </div>
         
+        <!-- Account/Admin Dashboard Link -->
         <a 
+          *ngIf="isAdmin"
+          routerLink="/admin" 
+          routerLinkActive="bg-brand-primary text-white"
+          (click)="onNavItemClick()"
+          class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-brand-primary transition-colors">
+          <mat-icon class="mr-3">admin_panel_settings</mat-icon>
+          Admin Dashboard
+        </a>
+        
+        <a 
+          *ngIf="!isAdmin"
           routerLink="/account" 
           routerLinkActive="bg-brand-primary text-white"
           (click)="onNavItemClick()"

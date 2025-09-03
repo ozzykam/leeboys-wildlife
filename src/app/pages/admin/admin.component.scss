@@ -38,4 +38,26 @@
   .tab-content {
     // Remove padding since child components handle their own
   }
+
+  .invoices-tab {
+    @apply p-6;
+    
+    .invoices-header {
+      @apply flex justify-between items-center mb-6;
+      
+      h2 {
+        @apply text-xl font-semibold text-gray-900;
+      }
+      
+      .create-invoice-btn {
+        @apply flex items-center gap-2 px-4 py-2 bg-red-600 text-white;
+        @apply rounded-lg font-medium text-sm hover:bg-red-700;
+        @apply transition-colors duration-200 shadow-sm;
+        
+        mat-icon {
+          font-size: 18px;
+        }
+      }
+    }
+  }
 }

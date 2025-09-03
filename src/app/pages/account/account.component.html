@@ -1,1 +1,160 @@
-<app-coming-soon>
+<div class="account-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">My Account</h1>
+    <div class="subtitle">View and manage your account information</div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning">refresh</mat-icon>
+    </div>
+    <div>Loading account information...</div>
+  </div>
+
+  <!-- Account Information -->
+  <div *ngIf="!isLoading && (userProfile$ | async) as userProfile" class="account-content">
+    
+    <!-- Account Status Card -->
+    <div class="status-card">
+      <div class="status-header">
+        <div class="status-info">
+          <h2>Account Status</h2>
+          <span [class]="getAccountStatusClass(userProfile)">
+            {{ getAccountStatus(userProfile) }}
+          </span>
+        </div>
+        <mat-icon class="status-icon" 
+          [class.text-green-500]="userProfile.billingAccountId" 
+          [class.text-yellow-500]="!userProfile.billingAccountId && userProfile.role !== 'admin'"
+          [class.text-purple-500]="userProfile.role === 'admin'">
+          {{ userProfile.role === 'admin' ? 'admin_panel_settings' : (userProfile.billingAccountId ? 'verified_user' : 'pending') }}
+        </mat-icon>
+      </div>
+      
+      <div *ngIf="!userProfile.billingAccountId && userProfile.role !== 'admin'" class="status-message">
+        <p>Your account is pending activation. Please contact our team to complete your account setup.</p>
+      </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="info-section">
+      <h3 class="section-title">Personal Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Display Name</label>
+          <div class="info-value">{{ userProfile.displayName }}</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Email Address</label>
+          <div class="info-value">{{ userProfile.email }}</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Phone Number</label>
+          <div class="info-value">{{ userProfile.phone || 'Not provided' }}</div>
+        </div>
+        
+        <div class="info-item">
+          <label>Account Role</label>
+          <div class="info-value">
+            <span [class]="getRoleBadgeClass(userProfile.role)">
+              {{ userProfile.role | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billing Information -->
+    <div class="info-section">
+      <h3 class="section-title">Billing Information</h3>
+      
+      <div *ngIf="userProfile.billingAccountId; else noBillingInfo" class="billing-card">
+        <div class="billing-item">
+          <label>Billing Account Number</label>
+          <div class="billing-value">
+            <span class="account-number">{{ userProfile.billingAccountId }}</span>
+            <button 
+              (click)="copyToClipboard(userProfile.billingAccountId!, 'copy-feedback')"
+              class="copy-btn"
+              title="Copy to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+              <span id="copy-feedback">Copy</span>
+            </button>
+          </div>
+          <div class="billing-note">
+            Use this account number when contacting customer service or making payments
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noBillingInfo>
+        <div class="no-billing-info">
+          <mat-icon>info</mat-icon>
+          <div>
+            <p>No billing account assigned yet.</p>
+            <p class="help-text">Contact our team to set up billing for your account.</p>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Address Information -->
+    <div *ngIf="userProfile.address" class="info-section">
+      <h3 class="section-title">Address Information</h3>
+      <div class="address-card">
+        <div class="address-content">
+          <div class="address-line">{{ userProfile.address.street }}</div>
+          <div class="address-line">
+            {{ userProfile.address.city }}, {{ userProfile.address.state }} {{ userProfile.address.zipCode }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Activity -->
+    <div class="info-section">
+      <h3 class="section-title">Account Activity</h3>
+      <div class="activity-grid">
+        <div class="activity-item">
+          <label>Account Created</label>
+          <div class="activity-value">{{ formatDate(userProfile.createdAt) }}</div>
+        </div>
+        
+        <div class="activity-item">
+          <label>Last Updated</label>
+          <div class="activity-value">{{ formatDate(userProfile.updatedAt) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+      <div class="help-card">
+        <mat-icon>help_outline</mat-icon>
+        <div class="help-content">
+          <h4>Need Help?</h4>
+          <p>If you need to update your account information or have questions about billing, please contact our customer service team.</p>
+          <div class="help-actions">
+            <a href="/contact" class="help-link">Contact Support</a>
+            <span class="divider">|</span>
+            <a href="/billing" class="help-link">View Billing</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !(userProfile$ | async)" class="error-state">
+    <mat-icon class="error-icon">error</mat-icon>
+    <div class="error-title">Unable to Load Account</div>
+    <div class="error-subtitle">
+      Please try refreshing the page or contact support if the problem persists.
+    </div>
+  </div>
+</div>

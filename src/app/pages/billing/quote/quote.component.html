@@ -1,0 +1,168 @@
+<div class="quote-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning">refresh</mat-icon>
+    </div>
+    <div>Loading quote...</div>
+  </div>
+
+  <!-- Quote Content -->
+  <div *ngIf="!isLoading && (quote$ | async) as quote" class="quote-content">
+    <!-- Header Actions -->
+    <div class="quote-actions no-print">
+      <button (click)="goBack()" class="btn-back">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Billing
+      </button>
+      <div class="action-buttons">
+        <button (click)="printQuote()" class="btn-print">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <div class="status-actions" *ngIf="isAdmin$ | async">
+          <button 
+            *ngIf="quote.status === 'draft'"
+            (click)="updateQuoteStatus(quote.id!, 'sent')"
+            class="btn-send"
+          >
+            <mat-icon>send</mat-icon>
+            Send Quote
+          </button>
+          <button 
+            *ngIf="quote.status === 'sent'"
+            (click)="updateQuoteStatus(quote.id!, 'approved')"
+            class="btn-approve"
+          >
+            <mat-icon>thumb_up</mat-icon>
+            Mark Approved
+          </button>
+          <button 
+            *ngIf="quote.status === 'sent'"
+            (click)="updateQuoteStatus(quote.id!, 'rejected')"
+            class="btn-reject"
+          >
+            <mat-icon>thumb_down</mat-icon>
+            Mark Rejected
+          </button>
+          <button 
+            *ngIf="quote.status === 'approved' || quote.status === 'sent'"
+            (click)="convertToInvoice(quote.id!)"
+            [disabled]="isConverting"
+            class="btn-convert"
+          >
+            <mat-icon>receipt</mat-icon>
+            {{ isConverting ? 'Converting...' : 'Convert to Invoice' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quote Document -->
+    <div class="quote-document">
+      <!-- Company Header -->
+      <div class="company-header">
+        <div class="company-info">
+          <h1 class="company-name">LeeBoy's Wildlife Removal</h1>
+          <div class="company-details">
+            <p>Professional Wildlife & Pest Control Services</p>
+            <p>Phone: (651) 587-2639 | Email: info&#64;leeboyswildlife.com</p>
+          </div>
+        </div>
+        <div class="quote-status">
+          <span [class]="getStatusBadgeClass(quote.status)">
+            {{ quote.status | titlecase }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Quote Info -->
+      <div class="quote-info">
+        <div class="quote-details">
+          <h2>QUOTE</h2>
+          <div class="quote-meta">
+            <div class="meta-item">
+              <strong>Quote #:</strong>
+              <span>{{ quote.quoteNumber }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Issue Date:</strong>
+              <span>{{ formatDate(quote.issueDate) }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Valid Until:</strong>
+              <span>{{ formatDate(quote.validUntil) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quote For -->
+        <div class="quote-for">
+          <h3>Quote For:</h3>
+          <div class="customer-info">
+            <div class="customer-name">{{ quote.customerName }}</div>
+            <div class="customer-email">{{ quote.customerEmail }}</div>
+            <div class="customer-address">
+              <div>{{ quote.customerAddress.street }}</div>
+              <div>{{ quote.customerAddress.city }}, {{ quote.customerAddress.state }} {{ quote.customerAddress.zipCode }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quote Items -->
+      <div class="quote-items">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th class="description">Description</th>
+              <th class="quantity">Qty</th>
+              <th class="unit-price">Unit Price</th>
+              <th class="total">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of quote.items">
+              <td class="description">{{ item.description }}</td>
+              <td class="quantity">{{ item.quantity }}</td>
+              <td class="unit-price">{{ formatCurrency(item.unitPrice) }}</td>
+              <td class="total">{{ formatCurrency(item.total) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quote Summary -->
+      <div class="quote-summary">
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span class="label">Subtotal:</span>
+            <span class="amount">{{ formatCurrency(quote.subtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Tax ({{ (quote.taxRate * 100).toFixed(1) }}%):</span>
+            <span class="amount">{{ formatCurrency(quote.taxAmount) }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="label">Total:</span>
+            <span class="amount">{{ formatCurrency(quote.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div *ngIf="quote.notes" class="quote-notes">
+        <h4>Notes:</h4>
+        <p>{{ quote.notes }}</p>
+      </div>
+
+      <!-- Quote Terms -->
+      <div class="quote-terms">
+        <h4>Terms & Conditions</h4>
+        <p>This quote is valid until {{ formatDate(quote.validUntil) }}.</p>
+        <p>All work will be performed according to our standard terms and conditions.</p>
+        <p>For questions about this quote, please contact us at (651) 587-2639.</p>
+      </div>
+    </div>
+  </div>
+</div>

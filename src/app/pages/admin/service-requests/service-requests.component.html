@@ -153,6 +153,13 @@
                 >
                   <mat-icon>info</mat-icon>
                 </button>
+                <button 
+                  (click)="createQuoteForRequest(request)"
+                  class="action-btn quote-btn"
+                  title="Create Quote"
+                >
+                  <mat-icon>receipt_long</mat-icon>
+                </button>
               </div>
             </td>
           </tr>
@@ -221,6 +228,13 @@
           >
             <mat-icon>info</mat-icon>
             Details
+          </button>
+          <button 
+            (click)="createQuoteForRequest(request)" 
+            class="mobile-action-btn quote"
+          >
+            <mat-icon>receipt_long</mat-icon>
+            Quote
           </button>
         </div>
       </div>

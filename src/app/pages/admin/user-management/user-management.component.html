@@ -110,15 +110,24 @@
               {{ formatDate(user.updatedAt) }}
             </td>
             <td class="actions-cell">
-              <button 
-                (click)="toggleAdminRole(user)"
-                [class]="user.role === 'admin' ? 'demote-btn' : 'promote-btn'"
-                class="action-btn"
-                [title]="user.role === 'admin' ? 'Remove Admin' : 'Make Admin'"
-              >
-                <mat-icon>{{ user.role === 'admin' ? 'person_remove' : 'admin_panel_settings' }}</mat-icon>
-                {{ user.role === 'admin' ? 'Remove Admin' : 'Make Admin' }}
-              </button>
+              <div class="action-buttons">
+                <button 
+                  (click)="viewUserDetail(user)"
+                  class="action-btn view-btn"
+                  title="View Details & Billing Actions"
+                >
+                  <mat-icon>visibility</mat-icon>
+                  Details
+                </button>
+                <button 
+                  (click)="toggleAdminRole(user)"
+                  [class]="user.role === 'admin' ? 'demote-btn' : 'promote-btn'"
+                  class="action-btn"
+                  [title]="user.role === 'admin' ? 'Remove Admin' : 'Make Admin'"
+                >
+                  <mat-icon>{{ user.role === 'admin' ? 'person_remove' : 'admin_panel_settings' }}</mat-icon>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -154,6 +163,13 @@
 
         <div class="card-actions">
           <button 
+            (click)="viewUserDetail(user)"
+            class="mobile-action-btn view"
+          >
+            <mat-icon>visibility</mat-icon>
+            Details & Billing
+          </button>
+          <button 
             (click)="toggleAdminRole(user)"
             [class]="user.role === 'admin' ? 'demote' : 'promote'"
             class="mobile-action-btn"
@@ -161,6 +177,114 @@
             <mat-icon>{{ user.role === 'admin' ? 'person_remove' : 'admin_panel_settings' }}</mat-icon>
             {{ user.role === 'admin' ? 'Remove Admin' : 'Make Admin' }}
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Detail Modal --><div *ngIf="showUserDetail && selectedUser" class="modal-backdrop" (click)="closeUserDetail()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">User Details & Billing Actions</h2>
+        <button (click)="closeUserDetail()" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="modal-content">
+        <!-- User Information -->
+        <div class="user-details-section">
+          <div class="section-header">
+            <h3>User Information</h3>
+            <span [class]="getUserStatusClass(selectedUser)">
+              {{ getUserDisplayStatus(selectedUser) }}
+            </span>
+          </div>
+          
+          <div class="user-info-grid">
+            <div class="info-item">
+              <label>Display Name:</label>
+              <span>{{ selectedUser.displayName }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email:</label>
+              <span>{{ selectedUser.email }}</span>
+            </div>
+            <div class="info-item">
+              <label>Phone:</label>
+              <span>{{ selectedUser.phone || 'Not provided' }}</span>
+            </div>
+            <div class="info-item">
+              <label>User ID:</label>
+              <span>{{ selectedUser.uid }}</span>
+            </div>
+            <div class="info-item">
+              <label>Role:</label>
+              <span [class]="getRoleBadgeClass(selectedUser.role)">
+                {{ selectedUser.role | titlecase }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Billing Account ID:</label>
+              <span>{{ selectedUser.billingAccountId || 'Not assigned' }}</span>
+            </div>
+          </div>
+          
+          <div *ngIf="selectedUser.address" class="address-section">
+            <label>Address:</label>
+            <div class="address-display">
+              {{ selectedUser.address.street }}<br>
+              {{ selectedUser.address.city }}, {{ selectedUser.address.state }} {{ selectedUser.address.zipCode }}
+            </div>
+          </div>
+          
+          <div class="timestamps">
+            <div class="timestamp-item">
+              <label>Created:</label>
+              <span>{{ formatDate(selectedUser.createdAt) }}</span>
+            </div>
+            <div class="timestamp-item">
+              <label>Last Updated:</label>
+              <span>{{ formatDate(selectedUser.updatedAt) }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Billing Actions -->
+        <div class="billing-actions-section">
+          <h3>Billing Actions</h3>
+          <p class="actions-description">Create quotes and invoices for this user</p>
+          
+          <div class="action-buttons-grid">
+            <button 
+              (click)="createQuoteForUser(selectedUser)"
+              class="action-button quote-button"
+              [disabled]="selectedUser.role === 'admin'"
+            >
+              <mat-icon>description</mat-icon>
+              <div class="button-content">
+                <span class="button-title">Draft Quote</span>
+                <span class="button-subtitle">Create a quote for this customer</span>
+              </div>
+            </button>
+            
+            <button 
+              (click)="createInvoiceForUser(selectedUser)"
+              class="action-button invoice-button"
+              [disabled]="selectedUser.role === 'admin'"
+            >
+              <mat-icon>receipt</mat-icon>
+              <div class="button-content">
+                <span class="button-title">Create Invoice</span>
+                <span class="button-subtitle">Create an invoice for this customer</span>
+              </div>
+            </button>
+          </div>
+          
+          <div *ngIf="selectedUser.role === 'admin'" class="admin-notice">
+            <mat-icon>info</mat-icon>
+            <span>Billing actions are not available for administrator accounts</span>
+          </div>
         </div>
       </div>
     </div>

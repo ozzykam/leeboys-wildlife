@@ -1,0 +1,71 @@
+<div class="invoice-table-container">
+  <table class="desktop-table">
+    <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Issue Date</th>
+        <th>Due Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let invoice of invoices" class="table-row">
+        <td class="invoice-number">
+          <span class="font-medium">{{ invoice.invoiceNumber }}</span>
+        </td>
+        <td class="customer-info">
+          <div class="customer-name">{{ invoice.customerName }}</div>
+          <div class="customer-email">{{ invoice.customerEmail }}</div>
+        </td>
+        <td class="amount">
+          <span class="font-semibold">{{ formatCurrency(invoice.total) }}</span>
+        </td>
+        <td class="status">
+          <span [class]="getStatusBadgeClass(invoice.status)">
+            {{ invoice.status | titlecase }}
+          </span>
+        </td>
+        <td class="issue-date">
+          {{ formatDate(invoice.issueDate) }}
+        </td>
+        <td class="due-date">
+          {{ formatDate(invoice.dueDate) }}
+        </td>
+        <td class="actions">
+          <div class="action-buttons">
+            <button 
+              (click)="viewInvoice(invoice.id!)"
+              class="action-btn view-btn"
+              title="View Invoice"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+            
+            <!-- Admin-only status actions -->
+            <div *ngIf="isAdmin" class="admin-actions">
+              <button 
+                *ngIf="invoice.status === 'draft'"
+                (click)="updateInvoiceStatus(invoice.id!, 'sent')"
+                class="action-btn send-btn"
+                title="Mark as Sent"
+              >
+                <mat-icon>send</mat-icon>
+              </button>
+              <button 
+                *ngIf="invoice.status === 'sent'"
+                (click)="updateInvoiceStatus(invoice.id!, 'paid')"
+                class="action-btn paid-btn"
+                title="Mark as Paid"
+              >
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

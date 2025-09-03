@@ -1,0 +1,28 @@
+<div class="quote-list-container">
+  <!-- Results Count -->
+  <div class="table-header">
+    <div class="results-count">
+      Showing {{ quotes.length || 0 }} quote(s)
+    </div>
+  </div>
+
+  <!-- Desktop Table View -->
+  <app-quote-table 
+    *ngIf="isDesktop"
+    [quotes]="quotes"
+    [isAdmin]="isAdmin"
+    (viewQuoteEvent)="viewQuote($event)"
+    (updateQuoteStatusEvent)="updateQuoteStatus($event.id, $event.status)"
+    (convertQuoteToInvoiceEvent)="convertQuoteToInvoice($event)">
+  </app-quote-table>
+
+  <!-- Mobile Cards View -->
+  <app-quote-cards 
+    *ngIf="!isDesktop"
+    [quotes]="quotes"
+    [isAdmin]="isAdmin"
+    (viewQuoteEvent)="viewQuote($event)"
+    (updateQuoteStatusEvent)="updateQuoteStatus($event.id, $event.status)"
+    (convertQuoteToInvoiceEvent)="convertQuoteToInvoice($event)">
+  </app-quote-cards>
+</div>

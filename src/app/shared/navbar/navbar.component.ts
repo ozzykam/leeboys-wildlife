@@ -18,8 +18,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   
   isLoggedIn = false;
   currentUser: User | null = null;
+  isAdmin = false;
   isSideNavOpen = false;
   private userSubscription?: Subscription;
+  private adminSubscription?: Subscription;
 
   ngOnInit() {
     // Subscribe to auth state changes
@@ -27,10 +29,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.isLoggedIn = !!user;
       this.currentUser = user;
     });
+
+    // Subscribe to admin status changes
+    this.adminSubscription = this.authService.isAdmin$.subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
+    });
   }
 
   ngOnDestroy() {
     this.userSubscription?.unsubscribe();
+    this.adminSubscription?.unsubscribe();
   }
 
   async onLogout() {

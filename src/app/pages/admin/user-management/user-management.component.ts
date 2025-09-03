@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { AdminService } from '../../../data-access/admin.service';
 import { UserProfile } from '../../../data-access/auth.service';
 import { Subscription } from 'rxjs';
@@ -14,11 +15,14 @@ import { Subscription } from 'rxjs';
 })
 export class UserManagementComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
+  private router = inject(Router);
   
   users: UserProfile[] = [];
   isLoading = true;
   searchTerm = '';
   roleFilter: 'all' | 'user' | 'admin' = 'all';
+  selectedUser: UserProfile | null = null;
+  showUserDetail = false;
   private subscription?: Subscription;
 
   roleOptions = [
@@ -107,5 +111,60 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   getUserCount(role: 'user' | 'admin'): number {
     return this.users.filter(user => user.role === role).length;
+  }
+
+  // User detail view methods
+  viewUserDetail(user: UserProfile) {
+    this.selectedUser = user;
+    this.showUserDetail = true;
+  }
+
+  closeUserDetail() {
+    this.selectedUser = null;
+    this.showUserDetail = false;
+  }
+
+  // Billing actions
+  createQuoteForUser(user: UserProfile) {
+    this.router.navigate(['/admin/create-invoice'], {
+      queryParams: {
+        mode: 'quote',
+        customerId: user.uid,
+        customerName: user.displayName,
+        customerEmail: user.email,
+        customerPhone: user.phone || '',
+        customerStreet: user.address?.street || '',
+        customerCity: user.address?.city || '',
+        customerState: user.address?.state || '',
+        customerZipCode: user.address?.zipCode || ''
+      }
+    });
+  }
+
+  createInvoiceForUser(user: UserProfile) {
+    this.router.navigate(['/admin/create-invoice'], {
+      queryParams: {
+        mode: 'invoice',
+        customerId: user.uid,
+        customerName: user.displayName,
+        customerEmail: user.email,
+        customerPhone: user.phone || '',
+        customerStreet: user.address?.street || '',
+        customerCity: user.address?.city || '',
+        customerState: user.address?.state || '',
+        customerZipCode: user.address?.zipCode || ''
+      }
+    });
+  }
+
+  // Helper methods for user detail
+  getUserDisplayStatus(user: UserProfile): string {
+    if (user.role === 'admin') return 'Administrator';
+    return user.billingAccountId ? 'Active Customer' : 'Pending Activation';
+  }
+
+  getUserStatusClass(user: UserProfile): string {
+    if (user.role === 'admin') return 'bg-purple-100 text-purple-800';
+    return user.billingAccountId ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
   }
 }
