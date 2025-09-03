@@ -218,9 +218,11 @@ export class AuthService {
 
     await this.firestoreService.setDocument('pendingAccounts', billingAccountNumber, pendingAccountData);
 
-    // TODO: Send activation email to customer
+    // TODO: Implement automatic email service integration
+    // Future: Send activation email with billing account number and activation link
+    // Email should include: billingAccountNumber, activation URL, and instructions
     console.log(`Account created with billing number: ${billingAccountNumber}`);
-    console.log('Activation email would be sent to:', userData.email);
+    console.log('Future: Activation email will be sent to:', userData.email);
 
     return billingAccountNumber;
   }

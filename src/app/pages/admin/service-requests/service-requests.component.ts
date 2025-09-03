@@ -133,9 +133,28 @@ export class ServiceRequestsComponent implements OnInit, OnDestroy {
     return typeMap[problemType] || problemType;
   }
 
-  formatDate(date: Date | undefined): string {
+  formatDate(date: Date | any): string {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString();
+    
+    // Handle Firestore Timestamp
+    if (date && typeof date === 'object' && date.toDate) {
+      return date.toDate().toLocaleDateString();
+    }
+    
+    // Handle string dates
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? 'Invalid Date' : parsedDate.toLocaleDateString();
+    }
+    
+    // Handle Date objects
+    if (date instanceof Date) {
+      return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+    }
+    
+    // Fallback
+    const fallbackDate = new Date(date);
+    return isNaN(fallbackDate.getTime()) ? 'Invalid Date' : fallbackDate.toLocaleDateString();
   }
 
   formatAddress(address: ServiceRequest['address']): string {

@@ -20,6 +20,7 @@
             (change)="onServiceRequestSelected()"
             class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">Select existing service request...</option>
+            <option value="n/a">N/A - No service request to link</option>
             <option 
               *ngFor="let request of serviceRequests$ | async" 
               [value]="request.id">

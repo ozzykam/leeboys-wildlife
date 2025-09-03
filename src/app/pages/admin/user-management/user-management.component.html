@@ -1,8 +1,21 @@
 <div class="user-management-container">
   <!-- Header -->
   <div class="header">
-    <h1 class="title">User Management</h1>
-    <div class="subtitle">Manage user accounts and admin privileges</div>
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="title">User Management</h1>
+        <div class="subtitle">Manage user accounts and admin privileges</div>
+      </div>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="navigateToCreateUser()"
+        class="create-user-btn"
+        style="display: flex; align-items: center; gap: 0.5rem;">
+        <mat-icon>person_add</mat-icon>
+        Create New User
+      </button>
+    </div>
   </div>
 
   <!-- Filters and Search -->
@@ -49,14 +62,14 @@
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-state">
     <div class="loading-spinner">
-      <mat-icon class="spinning">refresh</mat-icon>
+      <mat-icon class="spinning !w-full !h-full">refresh</mat-icon>
     </div>
     <div>Loading users...</div>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
-    <mat-icon class="empty-icon">people</mat-icon>
+    <mat-icon class="empty-icon !w-full !h-full">people</mat-icon>
     <div class="empty-title">No users found</div>
     <div class="empty-subtitle">
       <span *ngIf="searchTerm || roleFilter !== 'all'">
@@ -293,7 +306,7 @@
   <!-- First Admin Setup -->
   <div *ngIf="!isLoading && getUserCount('admin') === 0" class="first-admin-notice">
     <div class="notice-card">
-      <mat-icon class="notice-icon">warning</mat-icon>
+      <mat-icon class="notice-icon !w-full !h-full">warning</mat-icon>
       <h3>No Admin Users Found</h3>
       <p>There are currently no admin users in the system. You may need to manually set up the first admin user using Firebase Console or contact your developer.</p>
     </div>

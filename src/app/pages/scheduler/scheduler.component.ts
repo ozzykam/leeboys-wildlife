@@ -171,7 +171,15 @@ export class SchedulerComponent implements OnInit {
 
   onServiceRequestSelected() {
     const serviceRequestId = this.scheduleForm.get('serviceRequestId')?.value;
-    if (serviceRequestId) {
+    
+    // Handle N/A selection
+    if (serviceRequestId === 'n/a') {
+      this.selectedServiceRequest = null;
+      return; // Don't auto-populate form fields for standalone services
+    }
+    
+    // Handle linking to existing service request
+    if (serviceRequestId && serviceRequestId !== '') {
       this.serviceRequestsService.getServiceRequest(serviceRequestId).subscribe(request => {
         if (request) {
           this.selectedServiceRequest = request;
@@ -190,6 +198,9 @@ export class SchedulerComponent implements OnInit {
           });
         }
       });
+    } else {
+      // Handle empty selection (back to default)
+      this.selectedServiceRequest = null;
     }
   }
 
@@ -270,7 +281,7 @@ export class SchedulerComponent implements OnInit {
         const serviceTypeStr = formData.selectedServices.join(', ');
 
         const scheduledService: Omit<ScheduledService, 'id' | 'createdAt' | 'updatedAt'> = {
-          serviceRequestId: formData.serviceRequestId || undefined,
+          serviceRequestId: formData.serviceRequestId === 'n/a' ? undefined : formData.serviceRequestId || undefined,
           customerId: formData.customerId,
           customerName: this.selectedCustomer.displayName,
           customerEmail: this.selectedCustomer.email,
@@ -298,8 +309,8 @@ export class SchedulerComponent implements OnInit {
 
         await this.schedulerService.scheduleService(scheduledService);
 
-        // Update service request status if linked
-        if (formData.serviceRequestId) {
+        // Update service request status if linked (but not for N/A)
+        if (formData.serviceRequestId && formData.serviceRequestId !== 'n/a') {
           await this.serviceRequestsService.updateServiceRequestStatus(formData.serviceRequestId, 'scheduled');
         }
 
@@ -325,7 +336,7 @@ export class SchedulerComponent implements OnInit {
     return services.map(service => ({
       id: service.id || '',
       title: `${service.serviceType} - ${service.customerName}`,
-      date: new Date(service.scheduledDate),
+      date: this.convertTimestampToDate(service.scheduledDate) || new Date(),
       type: 'service',
       status: service.status
     }));

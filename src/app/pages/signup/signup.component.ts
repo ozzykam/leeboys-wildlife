@@ -84,7 +84,7 @@ export class SignupComponent implements OnInit {
         }
       });
       
-      this.successMessage = `User account created! Billing Account #: ${billingAccountNumber}. Activation email sent to customer.`;
+      this.successMessage = `User account created successfully! Billing Account #: ${billingAccountNumber}. Please provide this number to the customer so they can activate their account at /activate-account.`;
       
       // Clear form
       this.clearForm();

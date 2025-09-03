@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../data-access/admin.service';
 import { UserProfile } from '../../../data-access/auth.service';
@@ -9,7 +10,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatButtonModule],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss'
 })
@@ -105,8 +106,28 @@ export class UserManagementComponent implements OnInit, OnDestroy {
       : `${baseClasses} bg-blue-100 text-blue-800`;
   }
 
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString();
+  formatDate(date: Date | any): string {
+    if (!date) return 'N/A';
+    
+    // Handle Firestore Timestamp
+    if (date && typeof date === 'object' && date.toDate) {
+      return date.toDate().toLocaleDateString();
+    }
+    
+    // Handle string dates
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? 'Invalid Date' : parsedDate.toLocaleDateString();
+    }
+    
+    // Handle Date objects
+    if (date instanceof Date) {
+      return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+    }
+    
+    // Fallback
+    const fallbackDate = new Date(date);
+    return isNaN(fallbackDate.getTime()) ? 'Invalid Date' : fallbackDate.toLocaleDateString();
   }
 
   getUserCount(role: 'user' | 'admin'): number {
@@ -166,5 +187,10 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   getUserStatusClass(user: UserProfile): string {
     if (user.role === 'admin') return 'bg-purple-100 text-purple-800';
     return user.billingAccountId ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+  }
+
+  // Navigation method
+  navigateToCreateUser() {
+    this.router.navigate(['/create-user']);
   }
 }

@@ -19,7 +19,13 @@
   </div>
 
   <!-- Customer Navigation (when logged in) -->
-  <div *ngIf="isLoggedIn" class="hidden lg:flex space-x-6">
+  <div *ngIf="isLoggedIn && !isAdmin" class="hidden lg:flex space-x-6">
+    <a routerLink="/upcoming-services" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Upcoming Services</a>
+    <a routerLink="/billing" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Billing & Invoices</a>
+  </div>
+
+  <!-- Admin Navigation (when logged in) -->
+  <div *ngIf="isAdmin" class="hidden lg:flex space-x-6">
     <a routerLink="/schedule-service" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Schedule A Service</a>
     <a routerLink="/upcoming-services" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Upcoming Services</a>
     <a routerLink="/billing" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Billing & Invoices</a>
