@@ -1,0 +1,72 @@
+<div class="calendar-container w-full">
+  <!-- Calendar Header -->
+  <div class="calendar-header mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">{{ currentMonthYear }}</h2>
+      <div class="flex items-center space-x-2">
+        <button 
+          mat-icon-button 
+          (click)="previousMonth()"
+          class="hover:bg-gray-100">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button 
+          mat-button 
+          (click)="goToToday()"
+          class="text-blue-600 hover:bg-blue-50">
+          Today
+        </button>
+        <button 
+          mat-icon-button 
+          (click)="nextMonth()"
+          class="hover:bg-gray-100">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Week Day Headers -->
+    <div class="grid grid-cols-7 gap-1 mb-2">
+      <div 
+        *ngFor="let day of weekDays" 
+        class="text-center text-sm font-medium text-gray-500 py-2">
+        {{ day }}
+      </div>
+    </div>
+
+    <!-- Calendar Days -->
+    <div class="grid grid-cols-7 gap-1">
+      <div 
+        *ngFor="let day of calendarDays" 
+        class="calendar-day"
+        [class]="getDayClasses(day)"
+        (click)="onDateClick(day)">
+        
+        <!-- Day Number -->
+        <div class="day-number font-medium text-sm mb-1">
+          {{ day.date.getDate() }}
+        </div>
+
+        <!-- Events for this day -->
+        <div class="events-container space-y-1" *ngIf="day.events.length > 0">
+          <div 
+            *ngFor="let event of day.events | slice:0:2" 
+            class="event-item text-xs px-1 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition-opacity"
+            [class]="getEventTypeClass(event)"
+            (click)="onEventClick(event, $event)"
+            [title]="event.title">
+            <span class="event-title block truncate">{{ event.title }}</span>
+          </div>
+          <div 
+            *ngIf="day.events.length > 2" 
+            class="more-events text-xs text-gray-500 italic">
+            +{{ day.events.length - 2 }} more
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

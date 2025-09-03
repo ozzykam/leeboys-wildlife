@@ -64,6 +64,13 @@ export class FirestoreService {
     return collectionData(collectionRef, { idField: 'id' });
   }
 
+  // Get collection once (returns Promise, not Observable)
+  async getCollection(collectionName: string): Promise<any[]> {
+    const collectionRef = collection(this.firestore, collectionName);
+    const snapshot = await getDocs(collectionRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
   // Query collection with conditions
   getCollectionQuery(
     collectionName: string, 

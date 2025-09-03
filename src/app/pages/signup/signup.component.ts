@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../data-access/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -10,31 +11,57 @@ import { AuthService } from '../../data-access/auth.service';
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss'
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  fullName = '';
+  // User information fields (no password - admin creates account)
+  firstName = '';
+  lastName = '';
   email = '';
-  password = '';
-  confirmPassword = '';
+  dateOfBirth = '';
+  phoneNumber = '';
+  streetAddress = '';
+  city = '';
+  zipCode = '';
+  
+  // Admin verification
+  isAdmin$ = this.authService.isAdmin$;
+  
   loading = false;
   errorMessage = '';
   successMessage = '';
 
-  async onSignup() {
-    if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
+  ngOnInit() {
+    // Redirect non-admin users
+    this.isAdmin$.subscribe(isAdmin => {
+      if (isAdmin === false) {
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  async onCreateUserAccount() {
+    if (!this.firstName || !this.lastName || !this.email || !this.dateOfBirth || 
+        !this.phoneNumber || !this.streetAddress || !this.city || !this.zipCode) {
       this.errorMessage = 'Please fill in all fields';
       return;
     }
 
-    if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Passwords do not match';
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.email)) {
+      this.errorMessage = 'Please enter a valid email address';
       return;
     }
 
-    if (this.password.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters';
+    // Validate date of birth (must be at least 18 years ago)
+    const dobDate = new Date(this.dateOfBirth);
+    const eighteenYearsAgo = new Date();
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+    
+    if (dobDate > eighteenYearsAgo) {
+      this.errorMessage = 'Customer must be at least 18 years old';
       return;
     }
 
@@ -43,36 +70,48 @@ export class SignupComponent {
     this.successMessage = '';
 
     try {
-      await this.authService.signUp(this.email, this.password, this.fullName);
+      // Create user account without password (pending activation)
+      const billingAccountNumber = await this.authService.createPendingUserAccount({
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+        dateOfBirth: dobDate,
+        phoneNumber: this.phoneNumber,
+        address: {
+          street: this.streetAddress,
+          city: this.city,
+          zipCode: this.zipCode
+        }
+      });
       
-      this.successMessage = 'Account created! Please check your email for verification.';
+      this.successMessage = `User account created successfully! Billing Account #: ${billingAccountNumber}. Please provide this number to the customer so they can activate their account at /activate-account.`;
       
-      // Navigate to account page after 2 seconds
-      setTimeout(() => {
-        this.router.navigate(['/account']);
-      }, 2000);
+      // Clear form
+      this.clearForm();
       
     } catch (error: any) {
       this.loading = false;
       
-      // Handle specific Firebase auth errors
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          this.errorMessage = 'An account with this email already exists';
-          break;
-        case 'auth/invalid-email':
-          this.errorMessage = 'Invalid email address';
-          break;
-        case 'auth/weak-password':
-          this.errorMessage = 'Password is too weak. Please choose a stronger password';
-          break;
-        case 'auth/operation-not-allowed':
-          this.errorMessage = 'Account creation is currently disabled';
-          break;
-        default:
-          this.errorMessage = 'Account creation failed. Please try again';
-          console.error('Signup error:', error);
+      // Handle specific errors
+      if (error.code === 'auth/email-already-in-use') {
+        this.errorMessage = 'An account with this email already exists';
+      } else {
+        this.errorMessage = 'Failed to create user account. Please try again';
+        console.error('User creation error:', error);
       }
+    } finally {
+      this.loading = false;
     }
+  }
+
+  clearForm() {
+    this.firstName = '';
+    this.lastName = '';
+    this.email = '';
+    this.dateOfBirth = '';
+    this.phoneNumber = '';
+    this.streetAddress = '';
+    this.city = '';
+    this.zipCode = '';
   }
 }

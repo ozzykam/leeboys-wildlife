@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 import { ServiceRequestsService, ServiceRequest } from '../../../data-access/service-requests.service';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,6 +15,7 @@ import { map } from 'rxjs/operators';
 })
 export class ServiceRequestsComponent implements OnInit, OnDestroy {
   private serviceRequestsService = inject(ServiceRequestsService);
+  private router = inject(Router);
   
   serviceRequests: ServiceRequest[] = [];
   filteredRequests: ServiceRequest[] = [];
@@ -131,9 +133,28 @@ export class ServiceRequestsComponent implements OnInit, OnDestroy {
     return typeMap[problemType] || problemType;
   }
 
-  formatDate(date: Date | undefined): string {
+  formatDate(date: Date | any): string {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString();
+    
+    // Handle Firestore Timestamp
+    if (date && typeof date === 'object' && date.toDate) {
+      return date.toDate().toLocaleDateString();
+    }
+    
+    // Handle string dates
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? 'Invalid Date' : parsedDate.toLocaleDateString();
+    }
+    
+    // Handle Date objects
+    if (date instanceof Date) {
+      return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+    }
+    
+    // Fallback
+    const fallbackDate = new Date(date);
+    return isNaN(fallbackDate.getTime()) ? 'Invalid Date' : fallbackDate.toLocaleDateString();
   }
 
   formatAddress(address: ServiceRequest['address']): string {
@@ -152,5 +173,22 @@ export class ServiceRequestsComponent implements OnInit, OnDestroy {
   closeDetailModal() {
     this.showDetailModal = false;
     this.selectedRequest = null;
+  }
+
+  createQuoteForRequest(request: ServiceRequest) {
+    // Navigate to create-invoice component with pre-populated customer data
+    this.router.navigate(['/admin/create-invoice'], {
+      queryParams: {
+        serviceRequestId: request.id,
+        customerName: request.customerName,
+        customerEmail: request.email,
+        customerPhone: request.phone,
+        customerStreet: request.address.street,
+        customerCity: request.address.city,
+        customerState: request.address.state,
+        customerZipCode: request.address.zip,
+        mode: 'quote'
+      }
+    });
   }
 }

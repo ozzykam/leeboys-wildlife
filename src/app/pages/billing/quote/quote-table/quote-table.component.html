@@ -1,0 +1,79 @@
+<div class="quote-table-container">
+  <table class="desktop-table">
+    <thead>
+      <tr>
+        <th>Quote #</th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Issue Date</th>
+        <th>Valid Until</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let quote of quotes" class="table-row">
+        <td class="quote-number">
+          <span class="font-medium">{{ quote.quoteNumber }}</span>
+        </td>
+        <td class="customer-info">
+          <div class="customer-name">{{ quote.customerName }}</div>
+          <div class="customer-email">{{ quote.customerEmail }}</div>
+        </td>
+        <td class="amount">
+          <span class="font-semibold">{{ formatCurrency(quote.total) }}</span>
+        </td>
+        <td class="status">
+          <span [class]="getStatusBadgeClass(quote.status)">
+            {{ quote.status | titlecase }}
+          </span>
+        </td>
+        <td class="issue-date">
+          {{ formatDate(quote.issueDate) }}
+        </td>
+        <td class="valid-until">
+          {{ formatDate(quote.validUntil) }}
+        </td>
+        <td class="actions">
+          <div class="action-buttons">
+            <button 
+              (click)="viewQuote(quote.id!)"
+              class="action-btn view-btn"
+              title="View Quote"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+            
+            <!-- Admin-only status actions -->
+            <div *ngIf="isAdmin" class="admin-actions">
+              <button 
+                *ngIf="quote.status === 'draft'"
+                (click)="updateQuoteStatus(quote.id!, 'sent')"
+                class="action-btn send-btn"
+                title="Mark as Sent"
+              >
+                <mat-icon>send</mat-icon>
+              </button>
+              <button 
+                *ngIf="quote.status === 'sent'"
+                (click)="updateQuoteStatus(quote.id!, 'approved')"
+                class="action-btn approve-btn"
+                title="Mark as Approved"
+              >
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button 
+                *ngIf="quote.status === 'sent' || quote.status === 'approved'"
+                (click)="convertQuoteToInvoice(quote.id!, quote.quoteNumber)"
+                class="action-btn convert-btn"
+                title="Convert to Invoice"
+              >
+                <mat-icon>transform</mat-icon>
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

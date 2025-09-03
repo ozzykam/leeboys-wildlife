@@ -1,1 +1,183 @@
-<app-coming-soon>
+<div class="billing-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">
+      <span *ngIf="isAdmin$ | async; else userTitle">
+        {{ currentTab === 'quotes' ? 'All Quotes' : 'All Invoices' }}
+      </span>
+      <ng-template #userTitle>
+        {{ currentTab === 'quotes' ? 'My Quotes' : 'My Invoices' }}
+      </ng-template>
+    </h1>
+    <div class="subtitle">
+      <span *ngIf="isAdmin$ | async; else userSubtitle">
+        {{ currentTab === 'quotes' ? 'Manage all customer quotes' : 'Manage all customer invoices' }}
+      </span>
+      <ng-template #userSubtitle>
+        {{ currentTab === 'quotes' ? 'View and manage your quotes' : 'View and manage your invoices' }}
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-section">
+    <div class="tab-buttons">
+      <button 
+        (click)="setTab('invoices')" 
+        [class.active]="currentTab === 'invoices'"
+        class="tab-btn"
+      >
+        <mat-icon>receipt</mat-icon>
+        Invoices
+      </button>
+      <button 
+        (click)="setTab('quotes')" 
+        [class.active]="currentTab === 'quotes'"
+        class="tab-btn"
+      >
+        <mat-icon>description</mat-icon>
+        Quotes
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="status-filter">
+      <select 
+        [(ngModel)]="statusFilter" 
+        (change)="onStatusFilterChange()"
+        class="status-select"
+      >
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Stats Cards - Invoices -->
+  
+  <div *ngIf="currentTab === 'invoices'" class="stats-grid">
+    <ng-container *ngIf="invoices$ | async as invoices">
+      <ng-container *ngIf="isAdmin$ | async as isAdmin">
+        <div class="stat-card">
+          <div class="stat-number">{{ getStatusCount('draft', invoices) }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ getStatusCount('sent', invoices) }}</div>
+          <div class="stat-label">Sent</div>
+        </div>
+      </ng-container>
+      <div class="stat-card">
+        <div class="stat-number">{{ getStatusCount('paid', invoices) }}</div>
+        <div class="stat-label">Paid</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ invoices?.length || 0 }}</div>
+        <div class="stat-label">Total Invoices</div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Stats Cards - Quotes -->
+  <div *ngIf="currentTab === 'quotes'" class="stats-grid">
+    <ng-container *ngIf="quotes$ | async as quotes">
+      <ng-container *ngIf="isAdmin$ | async as isAdmin">
+        <div class="stat-card">
+          <div class="stat-number">{{ getStatusCount('draft', quotes) }}</div>
+          <div class="stat-label">Draft</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ getStatusCount('sent', quotes) }}</div>
+          <div class="stat-label">Sent</div>
+        </div>
+      </ng-container>
+      <div class="stat-card">
+        <div class="stat-number">{{ getStatusCount('approved', quotes) }}</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ quotes?.length || 0 }}</div>
+        <div class="stat-label">Total Quotes</div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning !w-full !h-full">refresh</mat-icon>
+    </div>
+    <div>Loading {{ currentTab }}...</div>
+  </div>
+
+  <!-- Empty State - Invoices -->
+  <div *ngIf="currentTab === 'invoices' && !isLoading && (invoices$ | async)?.length === 0" class="empty-state">
+    <mat-icon class="empty-icon !w-full !h-full">receipt</mat-icon>
+    <div class="empty-title">No invoices found</div>
+    <div class="empty-subtitle">
+      <span *ngIf="statusFilter !== 'all'">
+        Try changing your filter or create a new invoice.
+      </span>
+      <span *ngIf="statusFilter === 'all'">
+        Invoices will appear here when they are created.
+      </span>
+    </div>
+  </div>
+
+  <!-- Empty State - Quotes -->
+  <div *ngIf="currentTab === 'quotes' && !isLoading && (quotes$ | async)?.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">description</mat-icon>
+    <div class="empty-title">No quotes found</div>
+    <div class="empty-subtitle">
+      <span *ngIf="statusFilter !== 'all'">
+        Try changing your filter or create a new quote.
+      </span>
+      <span *ngIf="statusFilter === 'all'">
+        Quotes will appear here when they are created.
+      </span>
+    </div>
+  </div>
+
+  <!-- Invoices Section -->
+  <div *ngIf="currentTab === 'invoices' && !isLoading" class="invoices-section">
+    <div *ngIf="(invoices$ | async) as invoices; else noInvoices">
+      <app-invoice-list
+        [invoices]="invoices"
+        [isAdmin]="(isAdmin$ | async) || false"
+        (updateInvoiceStatusEvent)="handleInvoiceStatusUpdate($event)">
+      </app-invoice-list>
+    </div>
+    
+    <ng-template #noInvoices>
+      <div class="empty-state">
+        <mat-icon class="empty-icon !w-full !h-full">receipt</mat-icon>
+        <div class="empty-title">No invoices found</div>
+        <div class="empty-subtitle">There are no invoices to display.</div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Quotes Section -->
+  <div *ngIf="currentTab === 'quotes' && !isLoading" class="quotes-section">
+    <div *ngIf="(quotes$ | async) as quotes; else noQuotes">
+      <app-quote-list
+        [quotes]="quotes"
+        [isAdmin]="(isAdmin$ | async) || false"
+        (updateQuoteStatusEvent)="handleQuoteStatusUpdate($event)"
+        (convertQuoteToInvoiceEvent)="handleConvertQuoteToInvoice($event)">
+      </app-quote-list>
+    </div>
+    
+    <ng-template #noQuotes>
+      <div class="empty-state">
+        <mat-icon class="empty-icon">description</mat-icon>
+        <div class="empty-title">No quotes found</div>
+        <div class="empty-subtitle">There are no quotes to display.</div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+

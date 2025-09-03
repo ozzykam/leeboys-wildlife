@@ -1,0 +1,151 @@
+<div class="invoice-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner">
+      <mat-icon class="spinning !w-full !h-full">refresh</mat-icon>
+    </div>
+    <div>Loading invoice...</div>
+  </div>
+
+  <!-- Invoice Content -->
+  <div *ngIf="!isLoading && (invoice$ | async) as invoice" class="invoice-content">
+    <!-- Header Actions -->
+    <div class="invoice-actions no-print">
+      <button (click)="goBack()" class="btn-back">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Billing
+      </button>
+      <div class="action-buttons">
+        <button (click)="printInvoice()" class="btn-print">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <div class="status-actions" *ngIf="isAdmin$ | async">
+          <button 
+            *ngIf="invoice.status === 'draft'"
+            (click)="updateInvoiceStatus(invoice.id!, 'sent')"
+            class="btn-send"
+          >
+            <mat-icon>send</mat-icon>
+            Send Invoice
+          </button>
+          <button 
+            *ngIf="invoice.status === 'sent'"
+            (click)="updateInvoiceStatus(invoice.id!, 'paid')"
+            class="btn-paid"
+          >
+            <mat-icon>check_circle</mat-icon>
+            Mark as Paid
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Document -->
+    <div class="invoice-document">
+      <!-- Company Header -->
+      <div class="company-header">
+        <div class="company-info">
+          <h1 class="company-name">LeeBoy's Wildlife Removal</h1>
+          <div class="company-details">
+            <p>Professional Wildlife & Pest Control Services</p>
+            <p>Phone: (651) 587-2639 | Email: info&#64;leeboyswildlife.com</p>
+          </div>
+        </div>
+        <div class="invoice-status">
+          <span [class]="getStatusBadgeClass(invoice.status)">
+            {{ invoice.status | titlecase }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Invoice Info -->
+      <div class="invoice-info">
+        <div class="invoice-details">
+          <h2>INVOICE</h2>
+          <div class="invoice-meta">
+            <div class="meta-item">
+              <strong>Invoice #:</strong>
+              <span>{{ invoice.invoiceNumber }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Issue Date:</strong>
+              <span>{{ formatDate(invoice.issueDate) }}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Due Date:</strong>
+              <span>{{ formatDate(invoice.dueDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill To -->
+        <div class="bill-to">
+          <h3>Bill To:</h3>
+          <div class="customer-info">
+            <div class="customer-name">{{ invoice.customerName }}</div>
+            <div class="customer-email">{{ invoice.customerEmail }}</div>
+            <div class="customer-address">
+              <div>{{ invoice.customerAddress.street }}</div>
+              <div>{{ invoice.customerAddress.city }}, {{ invoice.customerAddress.state }} {{ invoice.customerAddress.zipCode }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Items -->
+      <div class="invoice-items">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th class="description">Description</th>
+              <th class="quantity">Qty</th>
+              <th class="unit-price">Unit Price</th>
+              <th class="total">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of invoice.items">
+              <td class="description">{{ item.description }}</td>
+              <td class="quantity">{{ item.quantity }}</td>
+              <td class="unit-price">{{ formatCurrency(item.unitPrice) }}</td>
+              <td class="total">{{ formatCurrency(item.total) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Invoice Summary -->
+      <div class="invoice-summary">
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span class="label">Subtotal:</span>
+            <span class="amount">{{ formatCurrency(invoice.subtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Tax ({{ (invoice.taxRate * 100).toFixed(1) }}%):</span>
+            <span class="amount">{{ formatCurrency(invoice.taxAmount) }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="label">Total:</span>
+            <span class="amount">{{ formatCurrency(invoice.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div *ngIf="invoice.notes" class="invoice-notes">
+        <h4>Notes:</h4>
+        <p>{{ invoice.notes }}</p>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="payment-info">
+        <h4>Payment Information</h4>
+        <p>Please make payment by the due date listed above.</p>
+        <p>All work has been performed according to our standard terms and conditions.</p>
+        <p>For questions about this invoice, please contact us at (651) 587-2639.</p>
+      </div>
+    </div>
+  </div>
+</div>

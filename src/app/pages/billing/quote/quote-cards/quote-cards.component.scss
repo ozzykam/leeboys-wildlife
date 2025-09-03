@@ -1,0 +1,131 @@
+$primary-red: #dc2626;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-900: #111827;
+$white: white;
+
+.quote-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+
+  .mobile-card { 
+    background: $white; 
+    border: 1px solid $gray-200; 
+    border-radius: 0.5rem; 
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: start; 
+    padding: 1rem; 
+    background: $gray-50; 
+    border-bottom: 1px solid $gray-200; 
+  }
+  
+  .quote-number { 
+    font-weight: 600; 
+    color: $gray-900; 
+    margin-bottom: 0.25rem; 
+    font-size: 1rem;
+  }
+  
+  .card-header .customer-name { 
+    color: $gray-500; 
+    font-size: 0.875rem; 
+  }
+  
+  .status-badge-container { 
+    margin-left: 1rem; 
+  }
+      
+  .card-content { 
+    padding: 1rem; 
+  }
+  
+  .info-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0.5rem 0; 
+    border-bottom: 1px solid $gray-100; 
+    font-size: 0.875rem; 
+    &:last-child { border-bottom: none; } 
+  }
+  
+  .info-row strong { 
+    color: $gray-700; 
+    font-weight: 500;
+  }
+      
+  .card-actions { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
+    padding: 1rem; 
+    border-top: 1px solid $gray-200; 
+    background: $gray-50; 
+  }
+  
+  .mobile-action-btn { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.5rem; 
+    padding: 0.5rem 0.75rem; 
+    border-radius: 0.375rem; 
+    font-size: 0.875rem; 
+    font-weight: 500; 
+    border: none; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+  }
+  
+  .mobile-action-btn mat-icon { 
+    font-size: 16px; 
+  }
+          
+  .mobile-action-btn.view, .mobile-action-btn.send { 
+    background: #eff6ff; 
+    color: #1d4ed8; 
+    &:hover { background: #dbeafe; } 
+  }
+  
+  .mobile-action-btn.approved { 
+    background: #f0fdf4; 
+    color: #15803d; 
+    &:hover { background: #dcfce7; } 
+  }
+
+  .mobile-action-btn.convert { 
+    background: #faf5ff; 
+    color: #9333ea; 
+    &:hover { background: #f3e8ff; } 
+  }
+        
+  .admin-mobile-actions { 
+    display: flex; 
+    gap: 0.5rem; 
+  }
+}
+
+// Show only on mobile screens
+@media (max-width: 1023px) {
+  .quote-cards-container {
+    display: flex;
+  }
+}
+
+// Hide on desktop screens
+@media (min-width: 1024px) {
+  .quote-cards-container {
+    display: none;
+  }
+}

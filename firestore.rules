@@ -9,7 +9,10 @@ service cloud.firestore {
     }
     
     function isAdmin() { 
-      return isSignedIn() && request.auth.token.admin == true; 
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
     }
     
     function isOwner(uid) { 
@@ -48,6 +51,22 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Quotes - admin or customer who owns it
+    match /quotes/{quoteId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.customerId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // Pending Accounts - admin create, limited read for activation
+    match /pendingAccounts/{billingAccountNumber} {
+      allow create: if isAdmin();
+      allow read: if isAdmin() || (request.auth == null); // Allow unauthenticated read for activation
+      allow update: if isAdmin() || 
+                     (request.auth == null && resource.data.status == 'pending') || // Allow unauthenticated activation updates
+                     (isSignedIn() && resource.data.status == 'pending' && request.resource.data.status == 'activated'); // Allow newly authenticated user to mark as activated
+      allow delete: if isAdmin();
+    }
+
     // Payments - admin only
     match /payments/{paymentId} {
       allow read, write: if isAdmin();
@@ -80,6 +99,13 @@ service cloud.firestore {
     match /config/{configId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Scheduled Services - admin manage, customers can view their own
+    match /scheduledServices/{serviceId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.customerId == request.auth.uid);
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     // Default deny for all other documents

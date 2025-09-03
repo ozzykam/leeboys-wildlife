@@ -36,5 +36,18 @@
   <div class="tab-content">
     <app-service-requests *ngIf="currentTab === 'requests'"></app-service-requests>
     <app-user-management *ngIf="currentTab === 'users'"></app-user-management>
+    <div *ngIf="currentTab === 'invoices'" class="invoices-tab">
+      <div class="invoices-header">
+        <h2>Invoice Management</h2>
+        <button 
+          (click)="navigateToCreateInvoice()" 
+          class="create-invoice-btn"
+        >
+          <mat-icon>add</mat-icon>
+          Create Invoice
+        </button>
+      </div>
+      <app-billing></app-billing>
+    </div>
   </div>
 </div>

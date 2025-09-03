@@ -21,7 +21,9 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   isLoggedIn = false;
   currentUser: User | null = null;
+  isAdmin = false;
   private userSubscription?: Subscription;
+  private adminSubscription?: Subscription;
 
   // Getters for reactive data
   ngOnInit() {
@@ -29,6 +31,11 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this.userSubscription = this.authService.user$.subscribe(user => {
       this.isLoggedIn = !!user;
       this.currentUser = user;
+    });
+
+    // Subscribe to admin status changes
+    this.adminSubscription = this.authService.isAdmin$.subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
     });
   }
 
@@ -55,6 +62,9 @@ export class SideNavComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.adminSubscription) {
+      this.adminSubscription.unsubscribe();
     }
   }
 }

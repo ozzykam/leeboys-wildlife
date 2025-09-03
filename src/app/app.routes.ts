@@ -12,14 +12,15 @@ export const routes: Routes = [
   
   // Auth routes (only accessible when NOT logged in)
   { 
-    path: 'signup', 
-    canActivate: [GuestGuard],
-    loadComponent: () => import('./pages/signup/signup.component').then(m => m.SignupComponent)
-  },
-  { 
     path: 'login', 
     canActivate: [GuestGuard],
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
+
+  {
+    path: 'activate-account',
+    canActivate: [GuestGuard],
+    loadComponent: () => import('./pages/account/activate-account/activate-account.component').then(m => m.ActivateAccountComponent)
   },
   
   // Customer routes (authentication required)
@@ -31,17 +32,12 @@ export const routes: Routes = [
   { 
     path: 'schedule-service', 
     canActivate: [AuthGuard],
-    loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent) // Temporary - will create scheduler component later
+    loadComponent: () => import('./pages/scheduler/scheduler.component').then(m => m.SchedulerComponent) // Temporary - will create scheduler component later
   },
   { 
     path: 'upcoming-services', 
     canActivate: [AuthGuard],
-    loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent) // Temporary - will create services-calendar component later
-  },
-  { 
-    path: 'billing', 
-    canActivate: [AuthGuard],
-    loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent) // Temporary - will create billing component later
+    loadComponent: () => import('./pages/services-calendar/services-calendar.component').then(m => m.ServicesCalendarComponent) // Temporary - will create services-calendar component later
   },
   
   // Public pages
@@ -63,6 +59,31 @@ export const routes: Routes = [
     path: 'admin', 
     canActivate: [AdminGuard],
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
+  },
+  { 
+    path: 'admin/create-invoice', 
+    canActivate: [AdminGuard],
+    loadComponent: () => import('./pages/admin/create-invoice/create-invoice.component').then(m => m.CreateInvoiceComponent)
+  },
+  { 
+    path: 'billing', 
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/billing/billing.component').then(m => m.BillingComponent)
+  },
+  { 
+    path: 'billing/invoice/:id', 
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/billing/invoice/invoice-detail/invoice-detail.component').then(m => m.InvoiceDetailComponent)
+  },
+  { 
+    path: 'billing/quote/:id', 
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/billing/quote/quote.component').then(m => m.QuoteComponent)
+  },
+  { 
+    path: 'create-user', 
+    canActivate: [AdminGuard],
+    loadComponent: () => import('./pages/signup/signup.component').then(m => m.SignupComponent)
   },
   
   // Fallback route

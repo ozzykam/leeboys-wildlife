@@ -1,1 +1,26 @@
-<p>invoice works!</p>
+<div class="invoice-list-container">
+  <!-- Results Count -->
+  <div class="table-header">
+    <div class="results-count">
+      Showing {{ invoices.length || 0 }} invoice(s)
+    </div>
+  </div>
+
+  <!-- Desktop Table View -->
+  <app-invoice-table
+    *ngIf="isDesktop"
+    [invoices]="invoices"
+    [isAdmin]="isAdmin"
+    (viewInvoiceEvent)="viewInvoice($event)"
+    (updateInvoiceStatusEvent)="updateInvoiceStatus($event.id, $event.status)">
+  </app-invoice-table>
+
+  <!-- Mobile Cards View -->
+  <app-invoice-cards
+    *ngIf="!isDesktop"
+    [invoices]="invoices"
+    [isAdmin]="isAdmin"
+    (viewInvoiceEvent)="viewInvoice($event)"
+    (updateInvoiceStatusEvent)="updateInvoiceStatus($event.id, $event.status)">
+  </app-invoice-cards>
+</div>

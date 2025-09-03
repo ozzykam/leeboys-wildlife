@@ -1,0 +1,60 @@
+<div class="invoice-cards-container">
+  <div *ngFor="let invoice of invoices" class="mobile-card">
+    <div class="card-header">
+      <div class="invoice-info">
+        <div class="invoice-number">{{ invoice.invoiceNumber }}</div>
+        <div class="customer-name">{{ invoice.customerName }}</div>
+      </div>
+      <div class="status-badge-container">
+        <span [class]="getStatusBadgeClass(invoice.status)">
+          {{ invoice.status | titlecase }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="card-content">
+      <div class="info-row">
+        <strong>Amount:</strong> {{ formatCurrency(invoice.total) }}
+      </div>
+      <div class="info-row">
+        <strong>Issue Date:</strong> {{ formatDate(invoice.issueDate) }}
+      </div>
+      <div class="info-row">
+        <strong>Due Date:</strong> {{ formatDate(invoice.dueDate) }}
+      </div>
+      <div class="info-row">
+        <strong>Customer:</strong> {{ invoice.customerEmail }}
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button 
+        (click)="viewInvoice(invoice.id!)" 
+        class="mobile-action-btn view"
+      >
+        <mat-icon>visibility</mat-icon>
+        View Invoice
+      </button>
+      
+      <!-- Admin-only status actions -->
+      <div *ngIf="isAdmin" class="admin-mobile-actions">
+        <button 
+          *ngIf="invoice.status === 'draft'"
+          (click)="updateInvoiceStatus(invoice.id!, 'sent')"
+          class="mobile-action-btn send"
+        >
+          <mat-icon>send</mat-icon>
+          Mark Sent
+        </button>
+        <button 
+          *ngIf="invoice.status === 'sent'"
+          (click)="updateInvoiceStatus(invoice.id!, 'paid')"
+          class="mobile-action-btn paid"
+        >
+          <mat-icon>check_circle</mat-icon>
+          Mark Paid
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

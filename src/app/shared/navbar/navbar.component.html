@@ -19,7 +19,13 @@
   </div>
 
   <!-- Customer Navigation (when logged in) -->
-  <div *ngIf="isLoggedIn" class="hidden lg:flex space-x-6">
+  <div *ngIf="isLoggedIn && !isAdmin" class="hidden lg:flex space-x-6">
+    <a routerLink="/upcoming-services" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Upcoming Services</a>
+    <a routerLink="/billing" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Billing & Invoices</a>
+  </div>
+
+  <!-- Admin Navigation (when logged in) -->
+  <div *ngIf="isAdmin" class="hidden lg:flex space-x-6">
     <a routerLink="/schedule-service" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Schedule A Service</a>
     <a routerLink="/upcoming-services" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Upcoming Services</a>
     <a routerLink="/billing" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Billing & Invoices</a>
@@ -31,8 +37,7 @@
     <div class="hidden lg:flex items-center space-x-4">
       <!-- Not logged in -->
       <div *ngIf="!isLoggedIn" class="space-x-4">
-        <a routerLink="/login" class="hover:text-gray-300">Sign In</a>
-        <a routerLink="/signup" class="btn-primary">Create Account</a>
+        <a routerLink="/login" class="btn-primary hover:text-gray-300">Sign In</a>
       </div>
 
       <!-- Logged in -->
@@ -42,8 +47,9 @@
           Welcome, {{ currentUser?.displayName || 'User' }}
         </span>
         
-        <!-- Account Dropdown or Link -->
-        <a routerLink="/account" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Account</a>
+        <!-- Account/Admin Dashboard Link -->
+        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Admin Dashboard</a>
+        <a *ngIf="!isAdmin" routerLink="/account" routerLinkActive="text-brand-primary" class="hover:text-gray-300">Account</a>
         
         <!-- Logout Button -->
         <button (click)="onLogout()" class="text-sm hover:text-gray-300">

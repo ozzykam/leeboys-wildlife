@@ -1,1 +1,232 @@
-<p>create-invoice works!</p>
+<div class="create-invoice-container">
+  <div class="header">
+    <h1 class="title">Create New {{ mode === 'quote' ? 'Quote' : 'Invoice' }}</h1>
+    <div class="actions">
+      <button type="button" (click)="onCancel()" class="btn-cancel">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="documentForm" class="invoice-form">
+    <!-- Customer Information -->
+    <div class="form-section">
+      <h2 class="section-title">Customer Information</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="customerName">Customer Name *</label>
+          <input 
+            id="customerName" 
+            type="text" 
+            formControlName="customerName"
+            class="form-input"
+            [class.error]="documentForm.get('customerName')?.invalid && documentForm.get('customerName')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="customerEmail">Customer Email *</label>
+          <input 
+            id="customerEmail" 
+            type="email" 
+            formControlName="customerEmail"
+            class="form-input"
+            [class.error]="documentForm.get('customerEmail')?.invalid && documentForm.get('customerEmail')?.touched"
+          >
+        </div>
+      </div>
+
+      <!-- Customer Address -->
+      <div formGroupName="customerAddress" class="form-grid">
+        <div class="form-group full-width">
+          <label for="street">Street Address *</label>
+          <input 
+            id="street" 
+            type="text" 
+            formControlName="street"
+            class="form-input"
+            [class.error]="documentForm.get('customerAddress.street')?.invalid && documentForm.get('customerAddress.street')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="city">City *</label>
+          <input 
+            id="city" 
+            type="text" 
+            formControlName="city"
+            class="form-input"
+            [class.error]="documentForm.get('customerAddress.city')?.invalid && documentForm.get('customerAddress.city')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="state">State *</label>
+          <input 
+            id="state" 
+            type="text" 
+            formControlName="state"
+            class="form-input"
+            [class.error]="documentForm.get('customerAddress.state')?.invalid && documentForm.get('customerAddress.state')?.touched"
+          >
+        </div>
+        <div class="form-group">
+          <label for="zipCode">Zip Code *</label>
+          <input 
+            id="zipCode" 
+            type="text" 
+            formControlName="zipCode"
+            class="form-input"
+            [class.error]="documentForm.get('customerAddress.zipCode')?.invalid && documentForm.get('customerAddress.zipCode')?.touched"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Items -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2 class="section-title">Invoice Items</h2>
+        <button type="button" (click)="addItem()" class="btn-add-item">
+          <mat-icon>add</mat-icon>
+          Add Item
+        </button>
+      </div>
+
+      <div formArrayName="items" class="items-container">
+        <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i" class="invoice-item">
+          <div class="item-header">
+            <span class="item-number">Item {{ i + 1 }}</span>
+            <button 
+              *ngIf="items.length > 1" 
+              type="button" 
+              (click)="removeItem(i)" 
+              class="btn-remove-item"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          
+          <div class="item-form">
+            <div class="form-group description">
+              <label>Description *</label>
+              <input 
+                type="text" 
+                formControlName="description"
+                class="form-input"
+                placeholder="Service description"
+                [class.error]="item.get('description')?.invalid && item.get('description')?.touched"
+              >
+            </div>
+            <div class="form-group quantity">
+              <label>Quantity *</label>
+              <input 
+                type="number" 
+                formControlName="quantity"
+                class="form-input"
+                min="1"
+                [class.error]="item.get('quantity')?.invalid && item.get('quantity')?.touched"
+              >
+            </div>
+            <div class="form-group unit-price">
+              <label>Unit Price *</label>
+              <input 
+                type="number" 
+                formControlName="unitPrice"
+                class="form-input"
+                min="0"
+                step="0.01"
+                [class.error]="item.get('unitPrice')?.invalid && item.get('unitPrice')?.touched"
+              >
+            </div>
+            <div class="form-group total">
+              <label>Total</label>
+              <div class="total-display">${{ getItemTotal(i).toFixed(2) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Details -->
+    <div class="form-section">
+      <h2 class="section-title">Invoice Details</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="taxRate">Tax Rate</label>
+          <input 
+            id="taxRate" 
+            type="number" 
+            formControlName="taxRate"
+            class="form-input"
+            min="0"
+            max="1"
+            step="0.01"
+            [class.error]="documentForm.get('taxRate')?.invalid && documentForm.get('taxRate')?.touched"
+          >
+          <small class="form-hint">Enter as decimal (e.g., 0.08 for 8%)</small>
+        </div>
+        <div class="form-group">
+          <label for="validUntil">Valid Until *</label>
+          <input 
+            id="validUntil" 
+            type="date" 
+            formControlName="validUntil"
+            class="form-input"
+            [class.error]="documentForm.get('validUntil')?.invalid && documentForm.get('validUntil')?.touched"
+          >
+        </div>
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="notes">Notes</label>
+        <textarea 
+          id="notes" 
+          formControlName="notes"
+          class="form-textarea"
+          rows="3"
+          placeholder="Additional notes or terms..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Invoice Summary -->
+    <div class="invoice-summary">
+      <h3>Invoice Summary</h3>
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span>${{ getSubtotal().toFixed(2) }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Tax ({{ ((documentForm.get('taxRate')?.value || 0) * 100).toFixed(1) }}%):</span>
+        <span>${{ getTaxAmount().toFixed(2) }}</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total:</span>
+        <span>${{ getTotal().toFixed(2) }}</span>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" (click)="onCancel()" class="btn-cancel">
+        Cancel
+      </button>
+      <button 
+        type="button"
+        (click)="saveAsQuote()"
+        class="btn-save-quote"
+        [disabled]="!documentForm.valid || isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">Save as Quote</span>
+        <span *ngIf="isSubmitting">Saving...</span>
+      </button>
+      <button 
+        type="button"
+        (click)="createDirectInvoice()"
+        class="btn-create-invoice"
+        [disabled]="!documentForm.valid || isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">Create Direct Invoice</span>
+        <span *ngIf="isSubmitting">Creating...</span>
+      </button>
+    </div>
+  </form>
+</div>
