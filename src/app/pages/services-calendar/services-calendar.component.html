@@ -1,1 +1,251 @@
-<app-coming-soon>
+<div class="services-calendar-container max-w-7xl mx-auto p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Services Calendar</h1>
+    <p class="text-gray-600">View and manage scheduled wildlife removal services</p>
+  </div>
+
+  <!-- Filter and Controls -->
+  <div class="bg-white rounded-lg shadow-sm border p-4 mb-6">
+    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <label class="text-sm font-medium text-gray-700">Filter by Status:</label>
+        <select 
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="onStatusFilterChange()"
+          class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <option 
+            *ngFor="let option of statusOptions" 
+            [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="flex items-center space-x-2 text-sm text-gray-600">
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+          <span>Scheduled</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+          <span>Confirmed</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-purple-100 border border-purple-300 rounded"></div>
+          <span>In Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Calendar View -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h2 class="text-lg font-semibold mb-4">Calendar View</h2>
+        <app-calendar
+          [events]="(calendarEvents$ | async) ?? []"
+          [selectedDate]="selectedDate"
+          (dateSelected)="onDateSelected($event)"
+          (eventClicked)="onEventClicked($event)">
+        </app-calendar>
+      </div>
+    </div>
+
+    <!-- Services for Selected Date -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h2 class="text-lg font-semibold mb-4">
+          Services for {{ selectedDate ? (selectedDate | date:'mediumDate') : 'Selected Date' }}
+        </h2>
+        
+        <div *ngIf="servicesForSelectedDate.length === 0" class="text-center py-8 text-gray-500">
+          <mat-icon class="text-4xl mb-2">event_busy</mat-icon>
+          <p>No services scheduled for this date</p>
+        </div>
+
+        <div *ngIf="servicesForSelectedDate.length > 0" class="space-y-4">
+          <div 
+            *ngFor="let service of servicesForSelectedDate" 
+            class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            (click)="selectedService = service">
+            
+            <!-- Service Header -->
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h3 class="font-medium text-gray-900 truncate">
+                  {{ getServiceTypeLabel(service.serviceType) }}
+                </h3>
+                <p class="text-sm text-gray-600">{{ service.customerName }}</p>
+              </div>
+              <div class="flex flex-col items-end space-y-1">
+                <span class="px-2 py-1 text-xs rounded-full" [class]="getStatusClass(service.status)">
+                  {{ service.status | titlecase }}
+                </span>
+                <span class="px-2 py-1 text-xs rounded-full" [class]="getPriorityClass(service.priority)">
+                  {{ service.priority | titlecase }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Time and Details -->
+            <div class="text-sm text-gray-600 space-y-1">
+              <div class="flex items-center">
+                <mat-icon class="text-base mr-1">schedule</mat-icon>
+                <span>{{ formatTime(service.startTime) }} - {{ formatTime(service.endTime) }}</span>
+              </div>
+              <div class="flex items-center" *ngIf="service.estimatedCost">
+                <mat-icon class="text-base mr-1">attach_money</mat-icon>
+                <span>{{ formatCurrency(service.estimatedCost) }}</span>
+              </div>
+            </div>
+
+            <!-- Quick Actions (Admin Only) -->
+            <div *ngIf="isAdmin$ | async" class="mt-3 flex space-x-2">
+              <button 
+                *ngIf="service.status === 'scheduled'"
+                (click)="updateServiceStatus(service.id!, 'confirmed'); $event.stopPropagation()"
+                class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                Confirm
+              </button>
+              <button 
+                *ngIf="service.status === 'confirmed'"
+                (click)="updateServiceStatus(service.id!, 'in_progress'); $event.stopPropagation()"
+                class="px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                Start
+              </button>
+              <button 
+                *ngIf="service.status === 'in_progress'"
+                (click)="updateServiceStatus(service.id!, 'completed'); $event.stopPropagation()"
+                class="px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
+                Complete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Detail Modal/Panel -->
+<div *ngIf="selectedService" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+     (click)="closeServiceDetail()">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+       (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b">
+      <h2 class="text-xl font-semibold text-gray-900">Service Details</h2>
+      <button 
+        (click)="closeServiceDetail()"
+        class="text-gray-400 hover:text-gray-600">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-6 space-y-6">
+      <!-- Service Info -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-3">{{ getServiceTypeLabel(selectedService.serviceType) }}</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium text-gray-700">Customer</label>
+            <p class="text-gray-900">{{ selectedService.customerName }}</p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Status</label>
+            <p>
+              <span class="px-2 py-1 text-xs rounded-full" [class]="getStatusClass(selectedService.status)">
+                {{ selectedService.status | titlecase }}
+              </span>
+            </p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Date & Time</label>
+            <p class="text-gray-900">
+              {{ formatDate(selectedService.scheduledDate) }} at 
+              {{ formatTime(selectedService.startTime) }} - {{ formatTime(selectedService.endTime) }}
+            </p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Priority</label>
+            <p>
+              <span class="px-2 py-1 text-xs rounded-full" [class]="getPriorityClass(selectedService.priority)">
+                {{ selectedService.priority | titlecase }}
+              </span>
+            </p>
+          </div>
+          <div>
+            <label class="text-sm font-medium text-gray-700">Estimated Cost</label>
+            <p class="text-gray-900">{{ selectedService.estimatedCost ? formatCurrency(selectedService.estimatedCost) : 'TBD' }}</p>
+          </div>
+          <div *ngIf="selectedService.actualCost">
+            <label class="text-sm font-medium text-gray-700">Actual Cost</label>
+            <p class="text-gray-900">{{ formatCurrency(selectedService.actualCost) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Contact Info -->
+      <div>
+        <h4 class="text-md font-medium text-gray-900 mb-2">Contact Information</h4>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-700">Email</label>
+              <p class="text-gray-900">{{ selectedService.customerEmail }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-700">Phone</label>
+              <p class="text-gray-900">{{ selectedService.customerPhone || 'Not provided' }}</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="text-sm font-medium text-gray-700">Address</label>
+            <p class="text-gray-900">
+              {{ selectedService.customerAddress.street }}<br>
+              {{ selectedService.customerAddress.city }}, {{ selectedService.customerAddress.state }} {{ selectedService.customerAddress.zipCode }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Description -->
+      <div>
+        <h4 class="text-md font-medium text-gray-900 mb-2">Service Description</h4>
+        <p class="text-gray-700 bg-gray-50 rounded-lg p-4">{{ selectedService.description }}</p>
+      </div>
+
+      <!-- Notes -->
+      <div *ngIf="selectedService.notes">
+        <h4 class="text-md font-medium text-gray-900 mb-2">Notes</h4>
+        <p class="text-gray-700 bg-gray-50 rounded-lg p-4">{{ selectedService.notes }}</p>
+      </div>
+
+      <!-- Equipment Needed -->
+      <div *ngIf="selectedService.equipmentNeeded && selectedService.equipmentNeeded.length > 0">
+        <h4 class="text-md font-medium text-gray-900 mb-2">Equipment Needed</h4>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <ul class="list-disc list-inside space-y-1">
+            <li *ngFor="let equipment of selectedService.equipmentNeeded" class="text-gray-700">
+              {{ equipment }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex justify-end space-x-4 p-6 border-t bg-gray-50">
+      <button 
+        (click)="closeServiceDetail()"
+        class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

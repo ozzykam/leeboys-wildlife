@@ -101,6 +101,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Scheduled Services - admin manage, customers can view their own
+    match /scheduledServices/{serviceId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.customerId == request.auth.uid);
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
     // Default deny for all other documents
     match /{document=**} {
       allow read, write: if false;
