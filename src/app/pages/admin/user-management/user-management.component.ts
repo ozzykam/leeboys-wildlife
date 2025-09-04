@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../data-access/admin.service';
-import { UserProfile } from '../../../data-access/auth.service';
+import { AuthService, UserProfile } from '../../../data-access/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,12 +16,13 @@ import { Subscription } from 'rxjs';
 })
 export class UserManagementComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   
   users: UserProfile[] = [];
   isLoading = true;
   searchTerm = '';
-  roleFilter: 'all' | 'user' | 'admin' = 'all';
+  roleFilter: 'all' | 'user' | 'admin' | 'superAdmin' = 'all';
   selectedUser: UserProfile | null = null;
   showUserDetail = false;
   private subscription?: Subscription;
@@ -29,7 +30,8 @@ export class UserManagementComponent implements OnInit, OnDestroy {
   roleOptions = [
     { value: 'all', label: 'All Users' },
     { value: 'user', label: 'Regular Users' },
-    { value: 'admin', label: 'Administrators' }
+    { value: 'admin', label: 'Administrators' },
+    { value: 'superAdmin', label: 'Super Administrators' }
   ];
 
   ngOnInit() {
@@ -99,11 +101,15 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  getRoleBadgeClass(role: 'user' | 'admin'): string {
+  getRoleBadgeClass(role: 'user' | 'admin' | 'superAdmin'): string {
     const baseClasses = 'px-3 py-1 rounded-full text-xs font-medium';
-    return role === 'admin' 
-      ? `${baseClasses} bg-red-100 text-red-800`
-      : `${baseClasses} bg-blue-100 text-blue-800`;
+    if (role === 'superAdmin') {
+      return `${baseClasses} bg-purple-100 text-purple-800`;
+    } else if (role === 'admin') {
+      return `${baseClasses} bg-red-100 text-red-800`;
+    } else {
+      return `${baseClasses} bg-blue-100 text-blue-800`;
+    }
   }
 
   formatDate(date: Date | any): string {
@@ -130,7 +136,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     return isNaN(fallbackDate.getTime()) ? 'Invalid Date' : fallbackDate.toLocaleDateString();
   }
 
-  getUserCount(role: 'user' | 'admin'): number {
+  getUserCount(role: 'user' | 'admin' | 'superAdmin'): number {
     return this.users.filter(user => user.role === role).length;
   }
 
@@ -180,17 +186,41 @@ export class UserManagementComponent implements OnInit, OnDestroy {
 
   // Helper methods for user detail
   getUserDisplayStatus(user: UserProfile): string {
+    if (user.role === 'superAdmin') return 'Super Administrator';
     if (user.role === 'admin') return 'Administrator';
     return user.billingAccountId ? 'Active Customer' : 'Pending Activation';
   }
 
   getUserStatusClass(user: UserProfile): string {
-    if (user.role === 'admin') return 'bg-purple-100 text-purple-800';
-    return user.billingAccountId ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+    if (user.role === 'superAdmin') return 'bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium';
+    if (user.role === 'admin') return 'bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium';
+    return user.billingAccountId ? 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium' : 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium';
   }
 
   // Navigation method
   navigateToCreateUser() {
     this.router.navigate(['/create-user']);
+  }
+
+  // TEMPORARY: Initialize super-admin for current user
+  async initializeSuperAdmin() {
+    try {
+      // Get current user's email
+      const currentUser = this.authService.currentUser;
+      if (!currentUser?.email) {
+        console.error('No current user email found');
+        return;
+      }
+
+      console.log('Initializing super-admin for:', currentUser.email);
+      console.log('Calling initializeFirstAdmin with asSuperAdmin=true');
+      const result = await this.adminService.initializeFirstAdmin(currentUser.email, true);
+      console.log('Super-admin initialization result:', result);
+      console.log('Full result object:', JSON.stringify(result, null, 2));
+      alert('Function called. Check console for details. Message: ' + result.message);
+    } catch (error) {
+      console.error('Error initializing super-admin:', error);
+      alert('Error: ' + (error as any).message);
+    }
   }
 }

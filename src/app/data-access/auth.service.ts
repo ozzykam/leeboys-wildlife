@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Auth, User, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, sendEmailVerification } from '@angular/fire/auth';
+import { Auth, User, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile, sendEmailVerification, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from '@angular/fire/auth';
 import { Observable, from } from 'rxjs';
 import { authState } from '@angular/fire/auth';
 import { map, switchMap } from 'rxjs/operators';
@@ -8,8 +8,10 @@ import { FirestoreService } from './firestore.service';
 export interface UserProfile {
   uid: string;
   email: string;
+  firstName: string;
+  lastName: string;
   displayName: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'superAdmin';
   billingAccountId?: string;
   phone?: string;
   address?: {
@@ -52,18 +54,28 @@ export class AuthService {
   // Observable of current user
   user$: Observable<User | null> = authState(this.auth);
   
-  // Observable to check if current user is admin
+  // Observable to check if current user is admin (includes super-admin)
   isAdmin$: Observable<boolean> = this.user$.pipe(
     switchMap(user => {
       if (!user) return from([false]);
       return from(user.getIdTokenResult()).pipe(
-        map(idTokenResult => !!idTokenResult.claims?.['admin'])
+        map(idTokenResult => !!(idTokenResult.claims?.['admin'] || idTokenResult.claims?.['superAdmin']))
+      );
+    })
+  );
+
+  // Observable to check if current user is super-admin
+  isSuperAdmin$: Observable<boolean> = this.user$.pipe(
+    switchMap(user => {
+      if (!user) return from([false]);
+      return from(user.getIdTokenResult()).pipe(
+        map(idTokenResult => !!idTokenResult.claims?.['superAdmin'])
       );
     })
   );
 
   // Sign up with email and password
-  async signUp(email: string, password: string, displayName: string) {
+  async signUp(email: string, password: string, displayName: string, firstName: string, lastName: string) {
     try {
       const credential = await createUserWithEmailAndPassword(this.auth, email, password);
       
@@ -76,6 +88,8 @@ export class AuthService {
         const userProfile: Omit<UserProfile, 'createdAt' | 'updatedAt'> = {
           uid: credential.user.uid,
           email: email,
+          firstName: firstName,
+          lastName: lastName,
           displayName: displayName,
           role: 'user' // Default role
         };
@@ -122,14 +136,14 @@ export class AuthService {
     return this.firestoreService.getDocumentObservable('users', uid);
   }
 
-  // Check if current user is admin (sync method)
+  // Check if current user is admin (includes super-admin)
   async isCurrentUserAdmin(): Promise<boolean> {
     const user = this.auth.currentUser;
     if (!user) return false;
     
     try {
       const idTokenResult = await user.getIdTokenResult();
-      return !!idTokenResult.claims?.['admin'];
+      return !!(idTokenResult.claims?.['admin'] || idTokenResult.claims?.['superAdmin']);
     } catch (error) {
       console.error('Error checking admin status:', error);
       return false;
@@ -292,6 +306,8 @@ export class AuthService {
       const userProfile: UserProfile = {
         uid: credential.user.uid,
         email: email,
+        firstName: pendingData.firstName,
+        lastName: pendingData.lastName,
         displayName: `${pendingData.firstName} ${pendingData.lastName}`,
         role: 'user',
         billingAccountId: billingAccountNumber,
@@ -337,5 +353,46 @@ export class AuthService {
     const timestampSuffix = timestamp.slice(-4);
     
     return `${lastNamePrefix}-${firstInitial}${phoneSuffix}-${timestampSuffix}`;
+  }
+
+  // Update user profile (display name)
+  async updateUserProfile(profile: { displayName?: string }): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently logged in');
+    }
+    
+    try {
+      await updateProfile(user, profile);
+      
+      // Also update the Firestore document
+      await this.firestoreService.updateDocument('users', user.uid, {
+        displayName: profile.displayName,
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  }
+
+  // Change user password
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user || !user.email) {
+      throw new Error('No user is currently logged in');
+    }
+
+    try {
+      // Re-authenticate user with current password
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      
+      // Update password
+      await updatePassword(user, newPassword);
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
   }
 }

@@ -1,0 +1,235 @@
+<div class="edit-profile-container">
+  <!-- Header -->
+  <div class="header">
+    <button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Account
+    </button>
+    <h1 class="page-title">Edit Profile</h1>
+    <p class="page-subtitle">Update your personal information and security settings</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <mat-icon class="spinning">refresh</mat-icon>
+    </div>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading" class="content">
+    <!-- Profile Information Form -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Personal Information</h2>
+        <p class="section-description">Update your name, contact information, and address</p>
+      </div>
+
+      <!-- Profile Success/Error Messages -->
+      <div *ngIf="profileMessage" class="message success">
+        <mat-icon>check_circle</mat-icon>
+        {{ profileMessage }}
+      </div>
+      <div *ngIf="profileError" class="message error">
+        <mat-icon>error</mat-icon>
+        {{ profileError }}
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+        <!-- Name and Email Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="displayName">Full Name</label>
+            <input
+              id="displayName"
+              type="text"
+              formControlName="displayName"
+              placeholder="Enter your full name"
+              [class.error]="isFieldInvalid(profileForm, 'displayName')"
+            />
+            <span *ngIf="isFieldInvalid(profileForm, 'displayName')" class="error-message">
+              {{ getFieldError(profileForm, 'displayName') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Enter your email"
+              [class.error]="isFieldInvalid(profileForm, 'email')"
+              readonly
+            />
+            <small class="field-note">Email changes require account verification</small>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            placeholder="(123) 456-7890"
+            [class.error]="isFieldInvalid(profileForm, 'phone')"
+          />
+          <span *ngIf="isFieldInvalid(profileForm, 'phone')" class="error-message">
+            {{ getFieldError(profileForm, 'phone') }}
+          </span>
+        </div>
+
+        <!-- Address Section -->
+        <div class="address-section">
+          <h3>Address</h3>
+          
+          <div class="form-group">
+            <label for="street">Street Address</label>
+            <input
+              id="street"
+              type="text"
+              formControlName="street"
+              placeholder="123 Main Street"
+              [class.error]="isFieldInvalid(profileForm, 'street')"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input
+                id="city"
+                type="text"
+                formControlName="city"
+                placeholder="City"
+                [class.error]="isFieldInvalid(profileForm, 'city')"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="state">State</label>
+              <input
+                id="state"
+                type="text"
+                formControlName="state"
+                placeholder="State"
+                [class.error]="isFieldInvalid(profileForm, 'state')"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="zipCode">ZIP Code</label>
+              <input
+                id="zipCode"
+                type="text"
+                formControlName="zipCode"
+                placeholder="12345"
+                [class.error]="isFieldInvalid(profileForm, 'zipCode')"
+              />
+              <span *ngIf="isFieldInvalid(profileForm, 'zipCode')" class="error-message">
+                {{ getFieldError(profileForm, 'zipCode') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            [disabled]="profileLoading || profileForm.invalid"
+            class="submit-btn"
+          >
+            <mat-icon *ngIf="profileLoading" class="spinning">sync</mat-icon>
+            <mat-icon *ngIf="!profileLoading">save</mat-icon>
+            {{ profileLoading ? 'Updating...' : 'Update Profile' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Password Change Form -->
+    <div class="form-section password-section">
+      <div class="section-header">
+        <h2>Change Password</h2>
+        <p class="section-description">Update your account password for security</p>
+      </div>
+
+      <!-- Password Success/Error Messages -->
+      <div *ngIf="passwordMessage" class="message success">
+        <mat-icon>check_circle</mat-icon>
+        {{ passwordMessage }}
+      </div>
+      <div *ngIf="passwordError" class="message error">
+        <mat-icon>error</mat-icon>
+        {{ passwordError }}
+      </div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form">
+        <div class="form-group">
+          <label for="currentPassword">Current Password</label>
+          <input
+            id="currentPassword"
+            type="password"
+            formControlName="currentPassword"
+            placeholder="Enter your current password"
+            [class.error]="isFieldInvalid(passwordForm, 'currentPassword')"
+          />
+          <span *ngIf="isFieldInvalid(passwordForm, 'currentPassword')" class="error-message">
+            {{ getFieldError(passwordForm, 'currentPassword') }}
+          </span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input
+              id="newPassword"
+              type="password"
+              formControlName="newPassword"
+              placeholder="Enter new password"
+              [class.error]="isFieldInvalid(passwordForm, 'newPassword')"
+            />
+            <span *ngIf="isFieldInvalid(passwordForm, 'newPassword')" class="error-message">
+              {{ getFieldError(passwordForm, 'newPassword') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Confirm new password"
+              [class.error]="isFieldInvalid(passwordForm, 'confirmPassword')"
+            />
+            <span *ngIf="isFieldInvalid(passwordForm, 'confirmPassword')" class="error-message">
+              {{ getFieldError(passwordForm, 'confirmPassword') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            mat-raised-button
+            color="accent"
+            [disabled]="passwordLoading || passwordForm.invalid"
+            class="submit-btn password-btn"
+          >
+            <mat-icon *ngIf="passwordLoading" class="spinning">sync</mat-icon>
+            <mat-icon *ngIf="!passwordLoading">lock</mat-icon>
+            {{ passwordLoading ? 'Changing...' : 'Change Password' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

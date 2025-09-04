@@ -44,7 +44,7 @@
       <div *ngIf="isLoggedIn" class="flex items-center space-x-4">
         <!-- User Welcome -->
         <span class="text-sm text-gray-300">
-          Welcome, {{ currentUser?.displayName || 'User' }}
+          Welcome, <a href="/account">{{ userProfile?.firstName || 'User' }}</a>
         </span>
         
         <!-- Account/Admin Dashboard Link -->

@@ -43,7 +43,7 @@
       <h3 class="section-title">Personal Information</h3>
       <div class="info-grid">
         <div class="info-item">
-          <label>Display Name</label>
+          <label>Name</label>
           <div class="info-value">{{ userProfile.displayName }}</div>
         </div>
         
@@ -128,6 +128,24 @@
         <div class="activity-item">
           <label>Last Updated</label>
           <div class="activity-value">{{ formatDate(userProfile.updatedAt) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="actions-section">
+      <div class="actions-card">
+        <h3 class="section-title">Account Actions</h3>
+        <div class="action-buttons">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="editProfile()"
+            class="action-btn"
+          >
+            <mat-icon>edit</mat-icon>
+            Edit Profile
+          </button>
         </div>
       </div>
     </div>

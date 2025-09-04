@@ -53,6 +53,8 @@ export class CreateInvoiceComponent implements OnInit {
     // Create a UserProfile-like object from route params
     this.selectedUser = {
       uid: params['customerId'] || '',
+      firstName: params['customerFirstName'] || '',
+      lastName: params['customerLastName'] || '',
       displayName: params['customerName'] || '',
       email: params['customerEmail'] || '',
       phone: params['customerPhone'] || '',

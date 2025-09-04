@@ -28,11 +28,23 @@ export class AdminService {
     }
   }
 
+  // Set super-admin claim (super-admin only)
+  async setSuperAdminClaim(uid: string, isSuperAdmin: boolean): Promise<any> {
+    const setSuperAdminClaimFunction = httpsCallable(this.functions, 'setSuperAdminClaim');
+    try {
+      const result = await setSuperAdminClaimFunction({ uid, isSuperAdmin });
+      return result.data;
+    } catch (error) {
+      console.error('Error setting super-admin claim:', error);
+      throw error;
+    }
+  }
+
   // Initialize first admin (one-time use)
-  async initializeFirstAdmin(email: string): Promise<any> {
+  async initializeFirstAdmin(email: string, asSuperAdmin?: boolean): Promise<any> {
     const initializeFirstAdminFunction = httpsCallable(this.functions, 'initializeFirstAdmin');
     try {
-      const result = await initializeFirstAdminFunction({ email });
+      const result = await initializeFirstAdminFunction({ email, asSuperAdmin });
       return result.data;
     } catch (error) {
       console.error('Error initializing first admin:', error);
@@ -41,7 +53,7 @@ export class AdminService {
   }
 
   // Get users by role
-  getUsersByRole(role: 'user' | 'admin'): Observable<UserProfile[]> {
+  getUsersByRole(role: 'user' | 'admin' | 'superAdmin'): Observable<UserProfile[]> {
     return this.firestoreService.getCollectionQuery(
       'users',
       [{ field: 'role', operator: '==', value: role }],

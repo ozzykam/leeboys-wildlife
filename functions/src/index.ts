@@ -42,12 +42,32 @@ export const setAdminClaim = onCall(async (request: CallableRequest) => {
   }
 
   try {
-    // Set the custom claim
-    await auth.setCustomUserClaims(uid, {admin: isAdmin});
+    // Get target user's current claims to check if they're a super-admin
+    const targetUser = await auth.getUser(uid);
+    const targetClaims = targetUser.customClaims || {};
+
+    // Protect super-admins from being demoted by regular admins
+    if (targetClaims.superAdmin && !isAdmin) {
+      throw new HttpsError(
+        "permission-denied",
+        "Cannot demote super-admin. Super-admin privileges are protected."
+      );
+    }
+
+    // Preserve existing superAdmin claim when updating admin status
+    const newClaims = {
+      admin: isAdmin,
+      superAdmin: targetClaims.superAdmin || false,
+    };
+
+    // Set the custom claims
+    await auth.setCustomUserClaims(uid, newClaims);
 
     // Update the user document in Firestore
+    const role = targetClaims.superAdmin ?
+      "superAdmin" : (isAdmin ? "admin" : "user");
     await db.collection("users").doc(uid).update({
-      role: isAdmin ? "admin" : "user",
+      role: role,
       updatedAt: new Date(),
     });
 
@@ -67,14 +87,79 @@ export const setAdminClaim = onCall(async (request: CallableRequest) => {
 });
 
 /**
- * Initialize first admin user
+ * Set super-admin status (super-admin only function)
+ */
+export const setSuperAdminClaim = onCall(async (request: CallableRequest) => {
+  const {uid, isSuperAdmin} = request.data;
+  const callerUid = request.auth?.uid;
+
+  // Verify that the caller is authenticated
+  if (!callerUid) {
+    throw new HttpsError("unauthenticated", "Authentication required");
+  }
+
+  try {
+    // Check if the caller is a super-admin
+    const callerToken = await auth.getUser(callerUid);
+    const callerClaims = callerToken.customClaims || {};
+
+    if (!callerClaims.superAdmin) {
+      throw new HttpsError(
+        "permission-denied",
+        "Unauthorized: Super-admin access required"
+      );
+    }
+
+    // Don't allow removing super-admin from self
+    if (callerUid === uid && !isSuperAdmin) {
+      throw new HttpsError(
+        "permission-denied",
+        "Cannot remove super-admin status from yourself"
+      );
+    }
+
+    // Set the custom claims
+    await auth.setCustomUserClaims(uid, {
+      admin: true, // Super-admins are always admins
+      superAdmin: isSuperAdmin,
+    });
+
+    // Update the user role in Firestore
+    await db.collection("users").doc(uid).update({
+      role: isSuperAdmin ? "superAdmin" : "admin",
+      updatedAt: new Date(),
+    });
+
+    const action = isSuperAdmin ? "granted" : "revoked";
+    logger.info(
+      `Super-admin claim ${action} for user ${uid} by ${callerUid}`
+    );
+
+    const promoted = isSuperAdmin ? "promoted to" : "demoted from";
+    return {
+      success: true,
+      message: `User ${promoted} super-admin successfully`,
+      uid: uid,
+      isSuperAdmin: isSuperAdmin,
+    };
+  } catch (error) {
+    logger.error("Error setting super-admin claim:", error);
+    throw new HttpsError(
+      "internal",
+      `Failed to update super-admin status: ${error}`
+    );
+  }
+});
+
+/**
+ * Initialize first admin user with optional super-admin status
  * This is a one-time function to create the first admin
  * Should be called manually and then disabled/removed
  */
 export const initializeFirstAdmin = onCall(async (
   request: CallableRequest
 ) => {
-  const {email} = request.data;
+  const {email, asSuperAdmin} = request.data;
 
   if (!email) {
     throw new HttpsError("invalid-argument", "Email is required");
@@ -84,20 +169,37 @@ export const initializeFirstAdmin = onCall(async (
     // Get user by email
     const userRecord = await auth.getUserByEmail(email);
 
-    // Set admin claim
-    await auth.setCustomUserClaims(userRecord.uid, {admin: true});
+    // Set admin/super-admin claims
+    const claims = {
+      admin: true,
+      superAdmin: asSuperAdmin || false,
+    };
+    logger.info("Setting claims:", claims);
+    await auth.setCustomUserClaims(userRecord.uid, claims);
 
     // Update Firestore document
+    const role = asSuperAdmin ? "superAdmin" : "admin";
+    logger.info(`Setting role in Firestore: ${role}`);
     await db.collection("users").doc(userRecord.uid).update({
-      role: "admin",
+      role: role,
       updatedAt: new Date(),
     });
 
-    logger.info(`First admin initialized for user: ${userRecord.uid}`);
+    const adminType = asSuperAdmin ? "super-" : "";
+    logger.info(
+      `First ${adminType}admin initialized for user: ${userRecord.uid}`
+    );
+
+    const responseMessage = "UPDATED FUNCTION - " +
+      `First ${adminType}admin successfully initialized for ${email}`;
+    logger.info(`Returning message: ${responseMessage}`);
 
     return {
       success: true,
-      message: `Admin privileges granted to ${email}`,
+      message: responseMessage,
+      uid: userRecord.uid,
+      claims: claims,
+      role: role,
     };
   } catch (error) {
     logger.error("Error initializing first admin:", error);
