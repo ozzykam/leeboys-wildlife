@@ -6,15 +6,18 @@
         <h1 class="title">User Management</h1>
         <div class="subtitle">Manage user accounts and admin privileges</div>
       </div>
-      <button 
-        mat-raised-button
-        color="primary"
-        (click)="navigateToCreateUser()"
-        class="create-user-btn"
-        style="display: flex; align-items: center; gap: 0.5rem;">
-        <mat-icon>person_add</mat-icon>
-        Create New User
-      </button>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <button 
+          mat-raised-button
+          color="primary"
+          (click)="navigateToCreateUser()"
+          class="create-user-btn"
+          style="display: flex; align-items: center; gap: 0.5rem;">
+          <mat-icon>person_add</mat-icon>
+          Create New User
+        </button>
+        
+        
     </div>
   </div>
 
@@ -304,7 +307,7 @@
   </div>
 
   <!-- First Admin Setup -->
-  <div *ngIf="!isLoading && getUserCount('admin') === 0" class="first-admin-notice">
+  <div *ngIf="!isLoading && getUserCount('admin') === 0 && getUserCount('superAdmin') === 0" class="first-admin-notice">
     <div class="notice-card">
       <mat-icon class="notice-icon !w-full !h-full">warning</mat-icon>
       <h3>No Admin Users Found</h3>

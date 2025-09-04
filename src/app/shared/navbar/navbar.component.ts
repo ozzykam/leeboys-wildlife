@@ -2,9 +2,9 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { User } from '@angular/fire/auth';
-import { AuthService } from '../../data-access/auth.service';
+import { AuthService, UserProfile } from '../../data-access/auth.service';
 import { SideNavComponent } from '../side-nav/side-nav.component';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -18,16 +18,31 @@ export class NavbarComponent implements OnInit, OnDestroy {
   
   isLoggedIn = false;
   currentUser: User | null = null;
+  userProfile: UserProfile | null = null;
   isAdmin = false;
   isSideNavOpen = false;
   private userSubscription?: Subscription;
   private adminSubscription?: Subscription;
+  private profileSubscription?: Subscription;
 
   ngOnInit() {
     // Subscribe to auth state changes
     this.userSubscription = this.authService.user$.subscribe(user => {
       this.isLoggedIn = !!user;
       this.currentUser = user;
+    });
+
+    // Subscribe to user profile changes
+    this.profileSubscription = this.authService.user$.pipe(
+      switchMap(user => {
+        if (user) {
+          return this.authService.getUserProfile(user.uid);
+        } else {
+          return [];
+        }
+      })
+    ).subscribe(profile => {
+      this.userProfile = profile || null;
     });
 
     // Subscribe to admin status changes
@@ -39,6 +54,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.userSubscription?.unsubscribe();
     this.adminSubscription?.unsubscribe();
+    this.profileSubscription?.unsubscribe();
   }
 
   async onLogout() {

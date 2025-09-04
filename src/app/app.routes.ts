@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent)
   },
   { 
+    path: 'edit-profile', 
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/account/edit-profile/edit-profile.component').then(m => m.EditProfileComponent)
+  },
+  { 
     path: 'schedule-service', 
     canActivate: [AuthGuard],
     loadComponent: () => import('./pages/scheduler/scheduler.component').then(m => m.SchedulerComponent) // Temporary - will create scheduler component later
